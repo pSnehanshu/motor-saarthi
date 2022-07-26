@@ -33,5 +33,5 @@ router.get('/contact', async (req, res) => {
     return RespondError(res, Errors.NOT_FOUND, { statusCode: 404 });
   }
 
-  res.render('stranger/qr', { qr });
+  res.render('stranger/contact', { qr });
 });

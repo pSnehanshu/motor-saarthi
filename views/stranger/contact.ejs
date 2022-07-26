@@ -1,0 +1,119 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Contact <%=qr?.Vehicle?.OwnerCustomer?.User?.name%></title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"
+      crossorigin="anonymous"
+    />
+    <style>
+      [x-cloak] {
+        display: none !important;
+      }
+      .selected-reason {
+        background-color: green;
+        color: white;
+      }
+    </style>
+    <script>
+      function contactform() {
+        return {
+          reasons: {
+            carblock: 'Vehicle is blocking the way',
+            badpark: 'Parked in a wrong place',
+            open: 'Doors or windows are open',
+            parkelsewhere: 'Vehicle should be parked elsewhere',
+          },
+          selectedReason: null,
+          sending: false,
+          selectReason(code) {
+            if (this.sending) return;
+
+            if (this.selectedReason === code) {
+              this.selectedReason = null;
+            } else {
+              this.selectedReason = code;
+            }
+          },
+          spinner() {
+            return `<div class="spinner-border text-light" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>`;
+          },
+          dateFormat(date) {
+            const d = new Date(date);
+
+            return new Intl.DateTimeFormat('en-IN', {
+              dateStyle: 'long',
+            }).format(d);
+          },
+        };
+      }
+    </script>
+  </head>
+  <body style="background-color: #444">
+    <div
+      class="mx-auto w-100"
+      style="max-width: 600px; min-height: 100vh; background-color: #fff"
+    >
+      <nav
+        class="p-2 px-4"
+        style="background-color: #ff0; border-bottom: solid 1px #aa0"
+      >
+        <h1>MotorSaarthi</h1>
+      </nav>
+      <main class="p-4">
+        <div x-data="contactform">
+          <table class="table">
+            <tbody>
+              <tr>
+                <th>Name of owner</th>
+                <td><%=qr?.Vehicle?.OwnerCustomer?.User?.name%></td>
+              </tr>
+              <tr>
+                <th>Registration number</th>
+                <td><%=qr?.Vehicle?.registration_num ?? '-'%></td>
+              </tr>
+              <tr>
+                <th>Member since</th>
+                <td
+                  x-text="dateFormat('<%=qr?.Vehicle?.OwnerCustomer?.User?.created_at?.toISOString()%>')"
+                ></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div x-cloak>
+            <ul class="row" style="user-select: none; list-style-type: none">
+              <template x-for="(reason, code) in reasons" :key="code">
+                <li
+                  role="option"
+                  x-text="reason"
+                  @click="selectReason(code)"
+                  style="height: 200px; cursor: pointer"
+                  :class="{ 'selected-reason': selectedReason === code, 'col col-5 border rounded m-1 text-center': true }"
+                ></li>
+              </template>
+            </ul>
+
+            <button
+              type="submit"
+              style="height: 3em"
+              class="btn btn-primary w-100"
+              :disabled="!selectedReason || sending"
+              @click="sending = true"
+              x-html="sending ? spinner() : 'Send message to <%=qr?.Vehicle?.OwnerCustomer?.User?.name ?? 'N/A'%>'"
+            ></button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js"></script>
+  </body>
+</html>

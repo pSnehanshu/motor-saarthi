@@ -2,6 +2,7 @@ import 'dotenv/config';
 // import 'reflect-metadata';
 import express from 'express';
 import QRCode from 'qrcode';
+import bodyParser from 'body-parser';
 import prisma from '../prisma/prisma';
 import { Errors } from '../shared/errors';
 import strangerRoutes from './stranger/stranger.routes';
@@ -10,6 +11,7 @@ import { RespondError } from './utils/response';
 const isProduction = process.env.NODE_ENV === 'production';
 
 const app = express();
+app.use(bodyParser.json());
 app.set('view engine', 'ejs');
 app.set('trust proxy', true);
 

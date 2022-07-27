@@ -52,6 +52,9 @@
               dateStyle: 'long',
             }).format(d);
           },
+          sendMessage() {
+            this.sending = true;
+          },
         };
       }
     </script>
@@ -69,56 +72,63 @@
       </nav>
       <main class="p-4">
         <div x-data="contactform">
-          <table class="table">
-            <tbody>
-              <tr>
-                <th>Name of owner</th>
-                <td><%=qr?.Vehicle?.OwnerCustomer?.User?.name%></td>
-              </tr>
-              <tr>
-                <th>Registration number</th>
-                <td><%=qr?.Vehicle?.registration_num ?? '-'%></td>
-              </tr>
-              <tr>
-                <th>Member since</th>
-                <td
-                  x-text="dateFormat('<%=qr?.Vehicle?.OwnerCustomer?.User?.created_at?.toISOString()%>')"
-                ></td>
-              </tr>
-            </tbody>
-          </table>
+          <form @submit.prevent="sendMessage">
+            <table class="table">
+              <tbody>
+                <tr>
+                  <th>Name of owner</th>
+                  <td><%=qr?.Vehicle?.OwnerCustomer?.User?.name%></td>
+                </tr>
+                <tr>
+                  <th>Registration number</th>
+                  <td><%=qr?.Vehicle?.registration_num ?? '-'%></td>
+                </tr>
+                <tr>
+                  <th>Member since</th>
+                  <td
+                    x-text="dateFormat('<%=qr?.Vehicle?.OwnerCustomer?.User?.created_at?.toISOString()%>')"
+                  ></td>
+                </tr>
+              </tbody>
+            </table>
 
-          <div x-cloak>
-            <ul class="row" style="user-select: none; list-style-type: none">
-              <template x-for="(reason, code) in reasons" :key="code">
-                <li
-                  role="option"
-                  style="height: 200px; cursor: pointer"
-                  class="col col-5 border rounded m-1 p-0 overflow-hidden"
-                >
-                  <button
-                    @click="selectReason(code)"
-                    class="w-100 h-100 text-center border-0"
-                    :class="{'selected-reason': selectedReason === code}"
-                    x-text="reason"
-                  ></button>
-                </li>
-              </template>
-            </ul>
+            <div x-cloak>
+              <ul class="row" style="user-select: none; list-style-type: none">
+                <template x-for="(reason, code) in reasons" :key="code">
+                  <li
+                    role="option"
+                    style="height: 200px; cursor: pointer"
+                    class="col col-5 border rounded m-1 p-0 overflow-hidden"
+                  >
+                    <button
+                      type="button"
+                      @click="selectReason(code)"
+                      class="w-100 h-100 text-center border-0"
+                      :class="{'selected-reason': selectedReason === code}"
+                      :disabled="sending"
+                      x-text="reason"
+                    ></button>
+                  </li>
+                </template>
+              </ul>
 
-            <button
-              type="submit"
-              style="height: 3em"
-              class="btn btn-primary w-100"
-              :disabled="!selectedReason || sending"
-              @click="sending = true"
-              x-html="sending ? spinner() : 'Send message to <%=qr?.Vehicle?.OwnerCustomer?.User?.name ?? 'N/A'%>'"
-            ></button>
-          </div>
+              <button
+                type="submit"
+                style="height: 3em"
+                class="btn btn-primary w-100"
+                :disabled="!selectedReason || sending"
+                x-html="sending ? spinner() : 'Send message to <%=qr?.Vehicle?.OwnerCustomer?.User?.name ?? 'N/A'%>'"
+              ></button>
+            </div>
+          </form>
         </div>
       </main>
     </div>
 
-    <script src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.3/dist/cdn.min.js"
+      integrity="sha256-gOkV4d9/FmMNEkjOzVlyM2eNAWSUXisT+1RbMTTIgXI="
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>

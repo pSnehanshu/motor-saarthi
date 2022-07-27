@@ -5,8 +5,9 @@ import QRCode from 'qrcode';
 import bodyParser from 'body-parser';
 import prisma from '../prisma/prisma';
 import { Errors } from '../shared/errors';
-import strangerRoutes from './stranger/stranger.routes';
 import { RespondError } from './utils/response';
+import strangerRoutes from './stranger/stranger.routes';
+import customerRoutes from './customer/customer.routes';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -16,6 +17,7 @@ app.set('view engine', 'ejs');
 app.set('trust proxy', true);
 
 app.use('/qr', strangerRoutes);
+app.use('/c', customerRoutes);
 
 app.get('/print-qr/:qrId', async (req, res) => {
   const { qrId } = req.params;

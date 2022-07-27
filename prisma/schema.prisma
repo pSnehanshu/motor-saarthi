@@ -34,8 +34,8 @@ model Vehicle {
 
 model User {
   id                String    @id @default(cuid())
-  name              String
-  phone             String?
+  name              String?
+  phone             String?   @unique
   is_phone_verified Boolean   @default(false)
   password          String?
   login_otp         String?   @db.VarChar(10)

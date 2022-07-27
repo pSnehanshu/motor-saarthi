@@ -93,11 +93,16 @@
               <template x-for="(reason, code) in reasons" :key="code">
                 <li
                   role="option"
-                  x-text="reason"
-                  @click="selectReason(code)"
                   style="height: 200px; cursor: pointer"
-                  :class="{ 'selected-reason': selectedReason === code, 'col col-5 border rounded m-1 text-center': true }"
-                ></li>
+                  class="col col-5 border rounded m-1 p-0 overflow-hidden"
+                >
+                  <button
+                    @click="selectReason(code)"
+                    class="w-100 h-100 text-center border-0"
+                    :class="{'selected-reason': selectedReason === code}"
+                    x-text="reason"
+                  ></button>
+                </li>
               </template>
             </ul>
 

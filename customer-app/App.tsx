@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,14 +7,28 @@ import {
   TextInput,
   Button,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
 import type { SuccessResponse } from '../shared/responses.type';
 
 axios.defaults.baseURL = 'http://192.168.29.42:4080/c';
 
-export default function App() {
+const AUTH_TOKEN = 'auth-token';
+async function getAuthToken() {
+  return SecureStore.getItemAsync(AUTH_TOKEN);
+}
+async function setAuthToken(token: string) {
+  await SecureStore.setItemAsync(AUTH_TOKEN, token);
+}
+async function removeAuthToken() {
+  await SecureStore.deleteItemAsync(AUTH_TOKEN);
+}
+
+type LoginProps = {
+  onLogin?: (token: string) => void;
+};
+function Login({ onLogin }: LoginProps) {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
@@ -54,11 +68,7 @@ export default function App() {
       setOtpSent(false);
       setPhone('');
 
-      Alert.alert('Login ok', data.data.token, [
-        {
-          text: 'Ok',
-        },
-      ]);
+      onLogin && onLogin(data.data.token);
     } catch (error) {
       console.error(error);
     }
@@ -103,6 +113,36 @@ export default function App() {
 
       <StatusBar style="auto" />
     </View>
+  );
+}
+
+export default function Main() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    getAuthToken().then((token) => {
+      setIsLoggedIn(!!token);
+    });
+  }, []);
+
+  return isLoggedIn ? (
+    <>
+      <Text>You're logged in</Text>
+      <Button
+        title="Logout"
+        onPress={async () => {
+          await removeAuthToken();
+          setIsLoggedIn(false);
+        }}
+      />
+    </>
+  ) : (
+    <Login
+      onLogin={async (token) => {
+        await setAuthToken(token);
+        setIsLoggedIn(true);
+      }}
+    />
   );
 }
 

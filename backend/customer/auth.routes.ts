@@ -1,7 +1,8 @@
-import { IsDefined, IsPhoneNumber } from 'class-validator';
+import { IsDefined, IsPhoneNumber, Length } from 'class-validator';
 import { Router } from 'express';
 import { addMinutes, isBefore } from 'date-fns';
 import _ from 'lodash';
+import jwt from 'jsonwebtoken';
 import { ValidateRequest } from '../utils/request-validator';
 import prisma from '../../prisma/prisma';
 import { RespondError, RespondSuccess } from '../utils/response';
@@ -68,5 +69,76 @@ router.post(
       console.error(error);
       RespondError(res, Errors.INTERNAL, { statusCode: 500 });
     }
+  },
+);
+
+class SubmitOTP {
+  @IsDefined()
+  @Length(4, 4)
+  otp!: string;
+
+  @IsDefined()
+  @IsPhoneNumber('IN')
+  phone!: string;
+}
+router.post(
+  '/submit-otp',
+  ValidateRequest('body', SubmitOTP),
+  async (req, res) => {
+    const { otp, phone } = req.body as SubmitOTP;
+
+    const user = await prisma.user.findUnique({
+      where: { phone },
+      include: { Customer: true },
+    });
+    if (!user) {
+      return RespondError(res, Errors.LOGIN_FAILED, {
+        statusCode: 401,
+      });
+    }
+    if (!user.Customer) {
+      return RespondError(res, Errors.LOGIN_FAILED, {
+        statusCode: 401,
+        errorSummary: 'Non-customers are not allowed to login',
+      });
+    }
+    if (!user.login_otp || !user.login_otp_expiry) {
+      return RespondError(res, Errors.LOGIN_FAILED, {
+        statusCode: 401,
+        errorSummary: 'Invalid OTP',
+      });
+    }
+
+    const hasExpired = !isBefore(new Date(), user.login_otp_expiry);
+    if (hasExpired) {
+      return RespondError(res, Errors.LOGIN_FAILED, {
+        statusCode: 401,
+        errorSummary: 'OTP Expired',
+      });
+    }
+
+    if (otp !== user.login_otp) {
+      return RespondError(res, Errors.LOGIN_FAILED, {
+        statusCode: 401,
+        errorSummary: 'Invalid OTP',
+      });
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        login_otp: null,
+        login_otp_expiry: null,
+      },
+    });
+
+    const token = jwt.sign(user, 'secret123', {
+      issuer: 'MotorSaarthi',
+      subject: user.id,
+      audience: 'MotorSaarthi',
+      expiresIn: '365 days',
+    });
+
+    RespondSuccess(res, { user, token });
   },
 );

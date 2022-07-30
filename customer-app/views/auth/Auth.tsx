@@ -5,6 +5,7 @@ import { ActivityIndicator, Button, Text, TextInput, View } from 'react-native';
 import { SuccessResponse } from '../../../shared/responses.type';
 import { ScreenProps } from '../../routes';
 import { setAuthToken } from '../../queries/auth';
+import { registerForPushNotificationsAsync } from '../../utils/notif';
 
 export default function Auth({}: ScreenProps<'Auth'>) {
   const [phone, setPhone] = useState('');
@@ -45,12 +46,21 @@ export default function Auth({}: ScreenProps<'Auth'>) {
 
       setOtpSent(false);
       setPhone('');
+      setLoading(false);
 
       setAuthToken(data.data.token);
+
+      // Also send Expo Push Token to backend
+      const expoPushToken = await registerForPushNotificationsAsync();
+      if (expoPushToken) {
+        await axios.post('/register-device', {
+          ept: expoPushToken,
+        });
+      }
     } catch (error) {
       console.error(error);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

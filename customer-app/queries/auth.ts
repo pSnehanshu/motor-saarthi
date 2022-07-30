@@ -14,8 +14,12 @@ export async function removeAuthToken() {
   await queryClient.invalidateQueries(['auth']);
 }
 
+export function getAuthToken() {
+  return SecureStore.getItemAsync(AUTH_TOKEN);
+}
+
 export function useIsLoggedIn() {
   return useQuery(['auth', 'isLoggedIn'], () =>
-    SecureStore.getItemAsync(AUTH_TOKEN).then((token) => !!token),
+    getAuthToken().then((token) => !!token),
   );
 }

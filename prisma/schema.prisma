@@ -52,6 +52,7 @@ model Customer {
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
   Vehicles   Vehicle[]
+  Devices    Device[]
 }
 
 model ContactAttempt {
@@ -63,4 +64,15 @@ model ContactAttempt {
   reason     String   @db.VarChar(20)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+model Device {
+  id              String   @id @default(cuid())
+  expo_push_token String   @map("ept")
+  customer_id     String
+  Customer        Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@unique([expo_push_token, customer_id])
 }

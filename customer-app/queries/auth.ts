@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { queryClient } from './client';
+import { registerForPushNotificationsAsync } from '../utils/notif';
 
 const AUTH_TOKEN = 'auth-token';
 
@@ -10,8 +12,18 @@ export async function setAuthToken(token: string) {
 }
 
 export async function removeAuthToken() {
-  await SecureStore.deleteItemAsync(AUTH_TOKEN);
-  await queryClient.invalidateQueries(['auth']);
+  try {
+    // Deregister device for this user
+    await axios.post('/auth/logout', {
+      token: await getAuthToken(),
+      ept: await registerForPushNotificationsAsync(),
+    });
+
+    await SecureStore.deleteItemAsync(AUTH_TOKEN);
+    await queryClient.invalidateQueries(['auth']);
+  } catch (error) {
+    console.error('Logout error', error);
+  }
 }
 
 export function getAuthToken() {

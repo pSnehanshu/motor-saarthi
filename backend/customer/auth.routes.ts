@@ -1,4 +1,11 @@
-import { IsDefined, IsPhoneNumber, Length } from 'class-validator';
+import {
+  IsDefined,
+  IsJWT,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  Length,
+} from 'class-validator';
 import { Router } from 'express';
 import { addMinutes, isBefore } from 'date-fns';
 import _ from 'lodash';
@@ -142,3 +149,54 @@ router.post(
     RespondSuccess(res, { user, token });
   },
 );
+
+class LogoutDTO {
+  /** Expo Push Token */
+  @IsOptional()
+  @IsString()
+  ept?: string;
+
+  @IsDefined()
+  @IsJWT()
+  token!: string;
+}
+router.post('/logout', ValidateRequest('body', LogoutDTO), (req, res) => {
+  const { ept, token } = req.body as LogoutDTO;
+
+  jwt.verify(
+    token,
+    'secret123',
+    {
+      issuer: 'MotorSaarthi',
+      audience: 'MotorSaarthi',
+    },
+    async (err, parsed) => {
+      if (err) {
+        return RespondError(res, Errors.LOGOUT_ERROR, {
+          statusCode: 500,
+          errorSummary: 'Failed to parse JWT token',
+        });
+      }
+
+      const customerId = (parsed as any)?.Customer?.id as string;
+      if (typeof customerId !== 'string') {
+        return RespondError(res, Errors.LOGOUT_ERROR, {
+          statusCode: 500,
+          errorSummary: 'Failed to extract customer id from JWT token',
+        });
+      }
+
+      if (ept)
+        await prisma.device.delete({
+          where: {
+            expo_push_token_customer_id: {
+              customer_id: customerId,
+              expo_push_token: ept,
+            },
+          },
+        });
+
+      RespondSuccess(res, null);
+    },
+  );
+});

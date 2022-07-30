@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Routes } from './routes';
 import { QueryClientProvider } from '@tanstack/react-query';
+import * as Notifications from 'expo-notifications';
 import { queryClient } from './queries/client';
 import { getAuthToken } from './queries/auth';
 
@@ -12,6 +13,14 @@ axios.interceptors.request.use(async (config) => {
   }
 
   return config;
+});
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
 });
 
 export default function App() {

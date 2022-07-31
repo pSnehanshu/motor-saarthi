@@ -1,10 +1,15 @@
 import { Router } from 'express';
+import cuid from 'cuid';
 import { Errors } from '../../shared/errors';
 import { RespondError, RespondSuccess } from '../utils/response';
 import prisma from '../../prisma/prisma';
 import { ContactReasons } from '../../shared/contact-reasons';
 import { ValidateRequest } from '../utils/request-validator';
 import { IsDefined, IsIn, IsString } from 'class-validator';
+import { Expo } from 'expo-server-sdk';
+import { sendNotificationQueue } from '../contact.queue';
+
+const expo = new Expo();
 
 const router = Router();
 export default router;
@@ -60,7 +65,11 @@ router.post(
         include: {
           Vehicle: {
             include: {
-              OwnerCustomer: true,
+              OwnerCustomer: {
+                include: {
+                  Devices: true,
+                },
+              },
             },
           },
         },
@@ -72,15 +81,23 @@ router.post(
         });
       }
 
-      await prisma.contactAttempt.create({
-        data: {
-          qr_id: qrId,
-          reason,
-          vehicle_id: qr.vehicle_id,
-        },
-      });
-
       // Push notification to customer
+      const devices = qr.Vehicle?.OwnerCustomer.Devices;
+      if (Array.isArray(devices)) {
+        devices.forEach((d) => {
+          sendNotificationQueue.push({
+            message: {
+              to: d.expo_push_token,
+              title: 'Someone contacted you about your vehicle',
+              body: `Your vehicle ${qr.Vehicle?.registration_num} is ${ContactReasons[reason]}. Please reach there as soon as possible.`,
+            },
+            id: cuid(),
+            qrId,
+            reason,
+            vehicleId: qr.vehicle_id!,
+          });
+        });
+      }
 
       RespondSuccess(res, null, 200);
     } catch (error) {

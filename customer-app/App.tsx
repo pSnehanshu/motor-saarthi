@@ -1,9 +1,10 @@
+import { useEffect } from 'react';
 import axios from 'axios';
-import { Routes } from './routes';
-import { QueryClientProvider } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './queries/client';
 import { getAuthToken } from './queries/auth';
+import { Routes } from './routes';
 
 axios.defaults.baseURL = 'http://192.168.29.42:4080/c';
 axios.interceptors.request.use(async (config) => {
@@ -24,6 +25,14 @@ Notifications.setNotificationHandler({
 });
 
 export default function App() {
+  const response = Notifications.useLastNotificationResponse();
+
+  useEffect(() => {
+    if (response) {
+      alert(`Notification tapped! ${response.notification.date}`);
+    }
+  }, [response]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <Routes />

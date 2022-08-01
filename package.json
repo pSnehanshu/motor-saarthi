@@ -17,16 +17,17 @@
     "@types/jsonwebtoken": "^8.5.8",
     "@types/lodash": "^4.14.182",
     "@types/node": "^18.6.1",
+    "@types/node-cron": "^3.0.2",
     "@types/qrcode": "^1.4.2",
     "nodemon": "^2.0.19",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
-    "prisma": "^4.1.0",
+    "prisma": "^4.1.1",
     "ts-node": "^10.9.1",
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@prisma/client": "^4.1.0",
+    "@prisma/client": "^4.1.1",
     "bcryptjs": "^2.4.3",
     "better-queue": "^3.8.10",
     "body-parser": "^1.20.0",
@@ -41,6 +42,7 @@
     "express": "^4.18.1",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
+    "node-cron": "^3.0.1",
     "qrcode": "^1.5.1"
   }
 }

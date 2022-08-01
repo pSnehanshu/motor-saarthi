@@ -95,6 +95,7 @@ router.post(
             qrId,
             reason,
             vehicleId: qr.vehicle_id!,
+            customerId: qr.Vehicle?.owner_cust_id!,
           });
         });
       }

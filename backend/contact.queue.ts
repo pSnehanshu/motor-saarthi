@@ -128,7 +128,7 @@ export const sendNotificationQueue = new Queue<NotificationTask>(
 );
 
 /** Cron to check for push receipts */
-cron.schedule('* */15 * * * *', async () => {
+cron.schedule('*/15 * * * *', async () => {
   const dateBefore = subMinutes(new Date(), 30);
 
   const tickets = await prisma.expoPushTicket.findMany({

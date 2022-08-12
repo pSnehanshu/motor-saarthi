@@ -1,29 +1,18 @@
 import { useState } from 'react';
 import { Button, Text, View, ActivityIndicator } from 'react-native';
-import { removeAuthToken } from '../../queries/auth';
+import { useRemoveAuthToken } from '../../queries/auth';
 
 export default function Home() {
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { logout, mutation } = useRemoveAuthToken();
 
   return (
     <View>
       <Text>Home screen is this, ain't it?</Text>
 
-      {isLoggingOut ? (
+      {mutation.isLoading ? (
         <ActivityIndicator size="large" />
       ) : (
-        <Button
-          title="Logout"
-          onPress={async () => {
-            setIsLoggingOut(true);
-            try {
-              await removeAuthToken();
-            } catch (error) {
-              console.error(error);
-            }
-            setIsLoggingOut(false);
-          }}
-        />
+        <Button title="Logout" onPress={logout} />
       )}
     </View>
   );

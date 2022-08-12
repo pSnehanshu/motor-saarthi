@@ -1,6 +1,7 @@
-import axios from 'axios';
+import { useQuery } from 'react-query';
 import * as SecureStore from 'expo-secure-store';
 import { queryClient } from './client';
+import { trpc } from '../utils/trpc';
 import { registerForPushNotificationsAsync } from '../utils/notif';
 
 const AUTH_TOKEN = 'auth-token';
@@ -10,19 +11,30 @@ export async function setAuthToken(token: string) {
   await queryClient.invalidateQueries(['auth']);
 }
 
-export async function removeAuthToken() {
-  try {
-    // Deregister device for this user
-    await axios.post('/auth/logout', {
-      token: await getAuthToken(),
-      ept: await registerForPushNotificationsAsync(),
-    });
+export function useRemoveAuthToken() {
+  const logoutMutation = trpc.useMutation('auth.logout', {
+    async onSuccess() {
+      await SecureStore.deleteItemAsync(AUTH_TOKEN);
+      await queryClient.invalidateQueries(['auth']);
+    },
+    onError(error) {
+      console.error('Logout error', error);
+    },
+  });
 
-    await SecureStore.deleteItemAsync(AUTH_TOKEN);
-    await queryClient.invalidateQueries(['auth']);
-  } catch (error) {
-    console.error('Logout error', error);
-  }
+  return {
+    mutation: logoutMutation,
+    async logout() {
+      const ept = await registerForPushNotificationsAsync();
+      const token = await getAuthToken();
+
+      if (token)
+        logoutMutation.mutate({
+          ept,
+          token,
+        });
+    },
+  };
 }
 
 export function getAuthToken() {
@@ -30,8 +42,7 @@ export function getAuthToken() {
 }
 
 export function useIsLoggedIn() {
-  return false;
-  // useQuery(['auth', 'isLoggedIn'], () =>
-  //   getAuthToken().then((token) => !!token),
-  // );
+  return useQuery(['auth', 'isLoggedIn'], () =>
+    getAuthToken().then((token) => !!token),
+  );
 }

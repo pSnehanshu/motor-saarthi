@@ -1,67 +1,41 @@
-import axios from 'axios';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { ActivityIndicator, Button, Text, TextInput, View } from 'react-native';
-import { SuccessResponse } from '../../../shared/responses.type';
 import { ScreenProps } from '../../routes';
 import { setAuthToken } from '../../queries/auth';
 import { registerForPushNotificationsAsync } from '../../utils/notif';
+import { trpcClient, trpc } from '../../utils/trpc';
 
 export default function Auth({}: ScreenProps<'Auth'>) {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
-  const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
 
-  const sendOtp = async () => {
-    if (!phone) return;
-
-    try {
-      setLoading(true);
+  const requestOtpMutation = trpc.useMutation('auth.request-otp', {
+    onMutate() {
       setOtp('');
-
-      await axios.post('/auth/request-otp', {
-        phone,
-      });
-
+    },
+    onSuccess() {
       setOtpSent(true);
-    } catch (error) {
-      console.error(error);
-    }
-    setLoading(false);
-  };
-
-  const submitOtp = async () => {
-    if (!otp) return;
-
-    try {
-      setLoading(true);
-
-      const { data } = await axios.post<
-        SuccessResponse<{ user: any; token: string }>
-      >('/auth/submit-otp', {
-        otp,
-        phone,
-      });
-
+    },
+  });
+  const submitOtpMutation = trpc.useMutation('auth.submit-otp', {
+    async onSuccess({ token, user }) {
       setOtpSent(false);
       setPhone('');
-      setLoading(false);
-
-      setAuthToken(data.data.token);
+      setAuthToken(token);
 
       // Also send Expo Push Token to backend
       const expoPushToken = await registerForPushNotificationsAsync();
       if (expoPushToken) {
-        await axios.post('/register-device', {
+        await trpcClient.mutation('customer.register-device', {
           ept: expoPushToken,
         });
       }
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-    }
-  };
+    },
+  });
+
+  const loading = requestOtpMutation.isLoading || submitOtpMutation.isLoading;
 
   return (
     <View>
@@ -83,7 +57,10 @@ export default function Auth({}: ScreenProps<'Auth'>) {
             placeholder="Enter 4-digit OTP"
             keyboardType="numeric"
           />
-          <Button onPress={submitOtp} title="Submit OTP" />
+          <Button
+            onPress={() => otp && submitOtpMutation.mutate({ phone, otp })}
+            title="Submit OTP"
+          />
         </>
       ) : (
         <>
@@ -93,7 +70,10 @@ export default function Auth({}: ScreenProps<'Auth'>) {
             placeholder="Enter your phone number"
             keyboardType="numeric"
           />
-          <Button onPress={sendOtp} title="Send OTP" />
+          <Button
+            onPress={() => phone && requestOtpMutation.mutate({ phone })}
+            title="Send OTP"
+          />
         </>
       )}
 

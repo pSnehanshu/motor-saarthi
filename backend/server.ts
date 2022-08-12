@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import express from 'express';
-import * as trpc from '@trpc/server';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import QRCode from 'qrcode';
 import bodyParser from 'body-parser';
@@ -9,7 +8,6 @@ import prisma from '../prisma/prisma';
 import { Errors } from '../shared/errors';
 import { RespondError } from './utils/response';
 import strangerRoutes from './stranger/stranger.routes';
-import customerRoutes from './customer/customer.routes';
 import { appRouter as trpcRouter, createContext } from './trpc';
 
 const app = express();
@@ -20,7 +18,6 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('trust proxy', true);
 
 app.use('/qr', strangerRoutes);
-app.use('/c', customerRoutes);
 
 app.get('/print-qr/:qrId', async (req, res) => {
   const { qrId } = req.params;

@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
+import * as trpc from '@trpc/server';
+import * as trpcExpress from '@trpc/server/adapters/express';
 import QRCode from 'qrcode';
 import bodyParser from 'body-parser';
 import path from 'path';
@@ -8,6 +10,7 @@ import { Errors } from '../shared/errors';
 import { RespondError } from './utils/response';
 import strangerRoutes from './stranger/stranger.routes';
 import customerRoutes from './customer/customer.routes';
+import { appRouter as trpcRouter, createContext } from './trpc';
 
 const app = express();
 app.use(bodyParser.json());
@@ -42,6 +45,15 @@ app.get('/print-qr/:qrId', async (req, res) => {
     res.render('qr/index', { qr, qrUrl: code });
   });
 });
+
+// tRPC
+app.use(
+  '/trpc',
+  trpcExpress.createExpressMiddleware({
+    router: trpcRouter,
+    createContext,
+  }),
+);
 
 const port = process.env.PORT || 4080;
 app.listen(port, () => console.log('MotorSaarthi is running on port', port));

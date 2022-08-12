@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { queryClient } from './client';
@@ -31,7 +30,8 @@ export function getAuthToken() {
 }
 
 export function useIsLoggedIn() {
-  return useQuery(['auth', 'isLoggedIn'], () =>
-    getAuthToken().then((token) => !!token),
-  );
+  return false;
+  // useQuery(['auth', 'isLoggedIn'], () =>
+  //   getAuthToken().then((token) => !!token),
+  // );
 }

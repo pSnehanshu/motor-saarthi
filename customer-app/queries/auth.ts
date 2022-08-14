@@ -2,7 +2,6 @@ import { useQuery } from 'react-query';
 import * as SecureStore from 'expo-secure-store';
 import { queryClient } from './client';
 import { trpc } from '../utils/trpc';
-import { registerForPushNotificationsAsync } from '../utils/notif';
 
 const AUTH_TOKEN = 'auth-token';
 
@@ -25,12 +24,12 @@ export function useRemoveAuthToken() {
   return {
     mutation: logoutMutation,
     async logout() {
-      const ept = await registerForPushNotificationsAsync();
+      // const ept = await registerForPushNotificationsAsync();
       const token = await getAuthToken();
 
       if (token)
         logoutMutation.mutate({
-          ept,
+          // ept,
           token,
         });
     },

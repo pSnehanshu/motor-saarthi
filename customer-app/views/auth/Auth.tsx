@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { ActivityIndicator, Button, Text, TextInput, View } from 'react-native';
 import { ScreenProps } from '../../routes';
 import { setAuthToken } from '../../queries/auth';
-import { registerForPushNotificationsAsync } from '../../utils/notif';
 import { trpcClient, trpc } from '../../utils/trpc';
 
 export default function Auth({}: ScreenProps<'Auth'>) {
@@ -24,14 +23,6 @@ export default function Auth({}: ScreenProps<'Auth'>) {
       setOtpSent(false);
       setPhone('');
       setAuthToken(token);
-
-      // Also send Expo Push Token to backend
-      const expoPushToken = await registerForPushNotificationsAsync();
-      if (expoPushToken) {
-        await trpcClient.mutation('customer.register-device', {
-          ept: expoPushToken,
-        });
-      }
     },
   });
 

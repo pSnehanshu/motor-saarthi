@@ -1,13 +1,16 @@
 import { Router } from 'express';
 import cuid from 'cuid';
+import { z } from 'zod';
 import { Errors } from '../../shared/errors';
 import { RespondError, RespondSuccess } from '../utils/response';
 import prisma from '../../prisma/prisma';
-import { ContactReasons } from '../../shared/contact-reasons';
-import { ValidateRequest } from '../utils/request-validator';
-import { IsDefined, IsIn, IsString } from 'class-validator';
+import {
+  ContactReasons,
+  ContactReasonsHumanFriendly,
+} from '../../shared/contact-reasons';
 import { Expo } from 'expo-server-sdk';
 import { sendNotificationQueue } from '../contact.queue';
+import { ValidateRequest } from '../utils/request-validator';
 
 const expo = new Expo();
 
@@ -41,24 +44,19 @@ router.get('/contact', async (req, res) => {
     return RespondError(res, Errors.NOT_FOUND, { statusCode: 404 });
   }
 
-  res.render('stranger/contact', { qr, reasons: ContactReasons });
+  res.render('stranger/contact', { qr, reasons: ContactReasonsHumanFriendly });
 });
 
-class ContactDTO {
-  @IsDefined()
-  @IsString()
-  qrId!: string;
-
-  @IsDefined()
-  @IsIn(Object.keys(ContactReasons))
-  reason!: keyof typeof ContactReasons;
-}
+const ContactDTO = z.object({
+  qrId: z.string(),
+  reason: z.nativeEnum(ContactReasons),
+});
 router.post(
   '/contact',
   ValidateRequest('body', ContactDTO),
   async (req, res) => {
     try {
-      const { qrId, reason } = req.body as ContactDTO;
+      const { qrId, reason } = req.body as z.output<typeof ContactDTO>;
 
       const qr = await prisma.qR.findUnique({
         where: { id: qrId },
@@ -89,7 +87,7 @@ router.post(
             message: {
               to: d.expo_push_token,
               title: 'Someone contacted you about your vehicle',
-              body: `Your vehicle ${qr.Vehicle?.registration_num} is ${ContactReasons[reason]}. Please reach there as soon as possible.`,
+              body: `Your vehicle ${qr.Vehicle?.registration_num} is ${ContactReasonsHumanFriendly[reason]}. Please reach there as soon as possible.`,
             },
             id: cuid(),
             qrId,

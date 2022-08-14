@@ -14,9 +14,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.snehanshu.motorsaarthicustomerapp"
@@ -33,8 +31,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "@notifee/react-native"
-    ]
+    "plugins": ["@notifee/react-native", "@react-native-firebase/app"]
   }
 }

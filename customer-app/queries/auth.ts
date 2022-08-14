@@ -38,7 +38,12 @@ export function useRemoveAuthToken() {
 }
 
 export function getAuthToken() {
-  return SecureStore.getItemAsync(AUTH_TOKEN);
+  return SecureStore.getItemAsync(AUTH_TOKEN)
+    .then((v) => v)
+    .catch((err) => {
+      console.error(err);
+      return null;
+    });
 }
 
 export function useIsLoggedIn() {

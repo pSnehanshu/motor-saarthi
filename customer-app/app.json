@@ -14,9 +14,12 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.snehanshu.motorsaarthicustomerapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -29,6 +32,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "@notifee/react-native"
+    ]
   }
 }

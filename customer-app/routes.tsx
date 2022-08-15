@@ -6,6 +6,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useIsLoggedIn } from './queries/auth';
 import Auth from './views/auth/Auth';
 import Home from './views/protected/Home';
+import { useEffect } from 'react';
+import { registerDevice } from './utils/register-device';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -17,6 +19,12 @@ export type ScreenProps<RouteName extends keyof RootStackParamList> =
 
 export function Routes() {
   const { data: isLoggedIn } = useIsLoggedIn();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      registerDevice();
+    }
+  }, [isLoggedIn]);
 
   return (
     <NavigationContainer>

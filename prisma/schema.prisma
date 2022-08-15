@@ -46,55 +46,46 @@ model User {
 }
 
 model Customer {
-  id              String           @id @default(cuid())
-  user_id         String           @unique
-  User            User             @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  created_at      DateTime         @default(now())
-  updated_at      DateTime         @updatedAt
-  Vehicles        Vehicle[]
-  Devices         Device[]
-  ExpoPushTickets ExpoPushTicket[]
+  id         String    @id @default(cuid())
+  user_id    String    @unique
+  User       User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  Vehicles   Vehicle[]
+  Devices    Device[]
 }
 
 model ContactAttempt {
-  id              String           @id @default(cuid())
-  vehicle_id      String
-  Vehicle         Vehicle          @relation(fields: [vehicle_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  qr_id           String
-  QR              QR               @relation(fields: [qr_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  reason          String           @db.VarChar(20)
-  created_at      DateTime         @default(now())
-  updated_at      DateTime         @updatedAt
-  ExpoPushTickets ExpoPushTicket[]
+  id                String   @id @default(cuid())
+  vehicle_id        String
+  Vehicle           Vehicle  @relation(fields: [vehicle_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  qr_id             String
+  QR                QR       @relation(fields: [qr_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  reason            String   @db.VarChar(20)
+  fcmId             String?
+  latest_error_code String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
 }
 
 model Device {
-  id              String           @id @default(cuid())
-  expo_push_token String           @map("ept")
-  customer_id     String
-  Customer        Customer         @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  created_at      DateTime         @default(now())
-  updated_at      DateTime         @updatedAt
-  ExpoPushTickets ExpoPushTicket[]
+  id          String     @id @default(cuid())
+  token       String
+  type        DeviceType @default(android)
+  customer_id String
+  Customer    Customer   @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
 
-  @@unique([expo_push_token, customer_id])
+  @@unique([token, customer_id, type])
 }
 
-model ExpoPushTicket {
-  id                 String            @id @default(cuid())
-  customer_id        String
-  Customer           Customer          @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  expo_push_token    String            @map("ept")
-  Device             Device            @relation(fields: [expo_push_token, customer_id], references: [expo_push_token, customer_id], onDelete: Cascade, onUpdate: Cascade)
-  receipt_id         String?
-  ticket_status      ExpoTicketStatus?
-  receipt_status     ExpoTicketStatus?
-  ticket_error       String?           @db.VarChar(30)
-  receipt_error      String?           @db.VarChar(30)
-  contact_attempt_id String
-  ContactAttempt     ContactAttempt    @relation(fields: [contact_attempt_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  created_at         DateTime          @default(now())
-  updated_at         DateTime          @updatedAt
+enum DeviceType {
+  android
+  ios
+  web
+  windows
+  macos
 }
 
 enum ExpoTicketStatus {

@@ -8,11 +8,8 @@ import {
   ContactReasons,
   ContactReasonsHumanFriendly,
 } from '../../shared/contact-reasons';
-import { Expo } from 'expo-server-sdk';
 import { sendNotificationQueue } from '../contact.queue';
 import { ValidateRequest } from '../utils/request-validator';
-
-const expo = new Expo();
 
 const router = Router();
 export default router;
@@ -84,16 +81,18 @@ router.post(
       if (Array.isArray(devices)) {
         devices.forEach((d) => {
           sendNotificationQueue.push({
-            message: {
-              to: d.expo_push_token,
-              title: 'Someone contacted you about your vehicle',
-              body: `Your vehicle ${qr.Vehicle?.registration_num} is ${ContactReasonsHumanFriendly[reason]}. Please reach there as soon as possible.`,
-            },
             id: cuid(),
             qrId,
             reason,
             vehicleId: qr.vehicle_id!,
             customerId: qr.Vehicle?.owner_cust_id!,
+            token: d.token,
+            attemptNumber: 1,
+            notif: {
+              title: 'Someone contacted you about your vehicle',
+              body: `Your vehicle ${qr.Vehicle?.registration_num} is ${ContactReasonsHumanFriendly[reason]}. Please reach there as soon as possible.`,
+              data: {},
+            },
           });
         });
       }

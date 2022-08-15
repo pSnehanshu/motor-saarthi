@@ -1,7 +1,9 @@
 import { useQuery } from 'react-query';
 import * as SecureStore from 'expo-secure-store';
+import messaging from '@react-native-firebase/messaging';
 import { queryClient } from './client';
 import { trpc } from '../utils/trpc';
+import { Platform } from 'react-native';
 
 const AUTH_TOKEN = 'auth-token';
 
@@ -24,13 +26,16 @@ export function useRemoveAuthToken() {
   return {
     mutation: logoutMutation,
     async logout() {
-      // const ept = await registerForPushNotificationsAsync();
       const token = await getAuthToken();
+
+      await messaging().registerDeviceForRemoteMessages();
+      const regtoken = await messaging().getToken();
 
       if (token)
         logoutMutation.mutate({
-          // ept,
-          token,
+          jwtToken: token,
+          deviceType: Platform.OS,
+          regtoken,
         });
     },
   };

@@ -2,6 +2,7 @@ import * as trpc from '@trpc/server';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { z } from 'zod';
 import jwt, { VerifyOptions, JwtPayload } from 'jsonwebtoken';
+import { DeviceType } from '@prisma/client';
 import _ from 'lodash';
 import { addMinutes, isBefore } from 'date-fns';
 import prisma from '../../prisma/prisma';
@@ -63,24 +64,26 @@ export const appRouter = createRouter()
       })
       .mutation('register-device', {
         input: z.object({
-          /** Expo Push Token */
-          ept: z.string(),
+          token: z.string(),
+          type: z.nativeEnum(DeviceType),
         }),
         async resolve({ input, ctx }) {
-          const { ept } = input;
+          const { token, type } = input;
 
           await prisma.device.upsert({
             where: {
-              expo_push_token_customer_id: {
+              token_customer_id_type: {
                 customer_id: ctx.customerId!,
-                expo_push_token: ept,
+                type,
+                token,
               },
             },
             update: {
               updated_at: new Date(),
             },
             create: {
-              expo_push_token: ept,
+              token,
+              type,
               customer_id: ctx.customerId!,
             },
             select: null,
@@ -208,18 +211,18 @@ export const appRouter = createRouter()
       })
       .mutation('logout', {
         input: z.object({
-          token: z
+          jwtToken: z
             .string()
             // JWT regex
             .regex(/^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/),
-          /** Expo Push Token */
-          ept: z.string().optional(),
+          regtoken: z.string().optional(),
+          deviceType: z.nativeEnum(DeviceType).optional(),
         }),
         async resolve({ input }) {
           try {
-            const { ept, token } = input;
+            const { regtoken, jwtToken, deviceType } = input;
 
-            const parsed = await jwtVerify(token, 'secret123', {
+            const parsed = await jwtVerify(jwtToken, 'secret123', {
               issuer: 'MotorSaarthi',
               audience: 'MotorSaarthi',
             });
@@ -232,11 +235,12 @@ export const appRouter = createRouter()
               });
             }
 
-            if (ept)
+            if (regtoken && deviceType)
               await prisma.device.deleteMany({
                 where: {
                   customer_id: customerId,
-                  expo_push_token: ept,
+                  token: regtoken,
+                  type: deviceType,
                 },
               });
 

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Button, Text, TextInput, View } from 'react-native';
 import { ScreenProps } from '../../routes';
 import { setAuthToken } from '../../queries/auth';
-import { trpcClient, trpc } from '../../utils/trpc';
+import { trpc } from '../../utils/trpc';
 
 export default function Auth({}: ScreenProps<'Auth'>) {
   const [phone, setPhone] = useState('');
@@ -19,7 +19,7 @@ export default function Auth({}: ScreenProps<'Auth'>) {
     },
   });
   const submitOtpMutation = trpc.useMutation('auth.submit-otp', {
-    async onSuccess({ token, user }) {
+    onSuccess({ token, user }) {
       setOtpSent(false);
       setPhone('');
       setAuthToken(token);

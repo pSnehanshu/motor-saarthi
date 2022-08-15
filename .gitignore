@@ -3,3 +3,4 @@ build
 .env
 tmp/*
 !tmp/.gitkeep
+google-service-account.json

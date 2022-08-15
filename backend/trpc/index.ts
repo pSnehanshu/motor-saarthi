@@ -50,6 +50,11 @@ function createRouter() {
   return trpc.router<Context>();
 }
 export const appRouter = createRouter()
+  .query('ping', {
+    resolve() {
+      console.log(new Date(), 'Ping received!');
+    },
+  })
   .merge(
     'customer.',
     createRouter()

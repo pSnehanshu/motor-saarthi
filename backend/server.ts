@@ -4,6 +4,7 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import QRCode from 'qrcode';
 import bodyParser from 'body-parser';
 import path from 'path';
+import cors from 'cors';
 import prisma from '../prisma/prisma';
 import { Errors } from '../shared/errors';
 import { RespondError } from './utils/response';
@@ -42,6 +43,8 @@ app.get('/print-qr/:qrId', async (req, res) => {
     res.render('qr/index', { qr, qrUrl: code });
   });
 });
+
+app.use(cors());
 
 // tRPC
 app.use(

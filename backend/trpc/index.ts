@@ -5,7 +5,7 @@ import jwt, { VerifyOptions, JwtPayload } from 'jsonwebtoken';
 import { DeviceType } from '@prisma/client';
 import _ from 'lodash';
 import { addMinutes, isBefore } from 'date-fns';
-import prisma from '../../prisma/prisma';
+import prisma from '../prisma/prisma';
 import {
   ContactReasons,
   ContactReasonsHumanFriendly,

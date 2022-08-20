@@ -5,7 +5,7 @@ import QRCode from 'qrcode';
 import bodyParser from 'body-parser';
 import path from 'path';
 import cors from 'cors';
-import prisma from '../prisma/prisma';
+import prisma from './prisma/prisma';
 import { Errors } from '../shared/errors';
 import { RespondError } from './utils/response';
 import { appRouter as trpcRouter, createContext } from './trpc';

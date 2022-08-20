@@ -1,4 +1,10 @@
-FROM node:16.17-alpine as BASE
+FROM nginx:1.23.1-alpine as BASE
+
+# Set up nginx routing logic
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Install Node.js and necessary packages
+RUN apk add --update nodejs npm openrc
 RUN node -v && npm -v
 RUN npm install --global pm2 prisma
 RUN pm2 -v; prisma -v

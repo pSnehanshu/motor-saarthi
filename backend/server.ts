@@ -8,7 +8,6 @@ import cors from 'cors';
 import prisma from '../prisma/prisma';
 import { Errors } from '../shared/errors';
 import { RespondError } from './utils/response';
-import strangerRoutes from './stranger/stranger.routes';
 import { appRouter as trpcRouter, createContext } from './trpc';
 
 const app = express();
@@ -17,8 +16,6 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.set('trust proxy', true);
-
-app.use('/qr', strangerRoutes);
 
 app.get('/print-qr/:qrId', async (req, res) => {
   const { qrId } = req.params;

@@ -6,6 +6,12 @@ import { DeviceType } from '@prisma/client';
 import _ from 'lodash';
 import { addMinutes, isBefore } from 'date-fns';
 import prisma from '../../prisma/prisma';
+import {
+  ContactReasons,
+  ContactReasonsHumanFriendly,
+} from '../../shared/contact-reasons';
+import { sendNotificationQueue } from '../contact.queue';
+import cuid from 'cuid';
 
 const isPhoneNumberValidator = z.string().regex(/^[6-9]\d{9}$/gi);
 
@@ -255,6 +261,95 @@ export const appRouter = createRouter()
             throw new trpc.TRPCError({
               code: 'INTERNAL_SERVER_ERROR',
               message: 'Failed to parse JWT token',
+            });
+          }
+        },
+      }),
+  )
+  .merge(
+    'stranger.',
+    createRouter()
+      .query('index', {
+        input: z.object({
+          qrId: z.string(),
+        }),
+        async resolve({ input }) {
+          const { qrId } = input;
+
+          const qr = await prisma.qR.findUnique({
+            where: {
+              id: qrId,
+            },
+            include: {
+              Vehicle: {
+                include: {
+                  OwnerCustomer: {
+                    include: {
+                      User: true,
+                    },
+                  },
+                },
+              },
+            },
+          });
+
+          if (!qr) {
+            throw new trpc.TRPCError({
+              code: 'NOT_FOUND',
+            });
+          }
+
+          return qr;
+        },
+      })
+      .mutation('contact', {
+        input: z.object({
+          qrId: z.string(),
+          reason: z.nativeEnum(ContactReasons),
+        }),
+        async resolve({ input }) {
+          const { qrId, reason } = input;
+
+          // Find the QR code
+          const qr = await prisma.qR.findUnique({
+            where: { id: qrId },
+            include: {
+              Vehicle: {
+                include: {
+                  OwnerCustomer: {
+                    include: {
+                      Devices: true,
+                    },
+                  },
+                },
+              },
+            },
+          });
+          if (!qr || !qr.vehicle_id) {
+            throw new trpc.TRPCError({
+              code: 'NOT_FOUND',
+              message: 'Invalid QR code',
+            });
+          }
+
+          // Push notification to customer
+          const devices = qr.Vehicle?.OwnerCustomer.Devices;
+          if (Array.isArray(devices)) {
+            devices.forEach((d) => {
+              sendNotificationQueue.push({
+                id: cuid(),
+                qrId,
+                reason,
+                vehicleId: qr.vehicle_id!,
+                customerId: qr.Vehicle?.owner_cust_id!,
+                token: d.token,
+                attemptNumber: 1,
+                notif: {
+                  title: 'Someone contacted you about your vehicle',
+                  body: `Your vehicle ${qr.Vehicle?.registration_num} is ${ContactReasonsHumanFriendly[reason]}. Please reach there as soon as possible.`,
+                  data: {},
+                },
+              });
             });
           }
         },

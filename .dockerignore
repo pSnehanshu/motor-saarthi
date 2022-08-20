@@ -1,0 +1,6 @@
+customer-app
+stranger-webapp/.svelte-kit
+stranger-webapp/build
+backend/.env
+backend/build
+**/node_modules

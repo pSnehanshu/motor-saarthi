@@ -4,6 +4,7 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.ts",
+    "build": "prisma generate && tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "pretty": "prettier . -w"
   },

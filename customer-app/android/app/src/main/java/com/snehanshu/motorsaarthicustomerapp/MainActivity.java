@@ -8,10 +8,7 @@ import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
 
 import expo.modules.ReactActivityDelegateWrapper;
-
 import io.wazo.callkeep.RNCallKeepModule;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 public class MainActivity extends ReactActivity {
   @Override
@@ -61,7 +58,7 @@ public class MainActivity extends ReactActivity {
 
   // Permission results
   @Override
-  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+  public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     switch (requestCode) {
         case RNCallKeepModule.REQUEST_READ_PHONE_STATE:

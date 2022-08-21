@@ -9,17 +9,41 @@ import notifee, {
   AndroidImportance,
 } from '@notifee/react-native';
 import { useEffect } from 'react';
-import { AppRegistry, Text, View } from 'react-native';
+import { AppRegistry, Platform } from 'react-native';
+import RNCallKeep from 'react-native-callkeep';
 
-function ContactCallScreen() {
-  return (
-    <View>
-      <Text>Full Screen notif</Text>
-    </View>
+if (Platform.OS === 'android') {
+  AppRegistry.registerHeadlessTask(
+    'RNCallKeepBackgroundMessage',
+    () =>
+      ({ name, callUUID, handle }) => {
+        // Make your call here
+
+        return Promise.resolve();
+      },
   );
 }
 
-AppRegistry.registerComponent('contact-call-screen', () => ContactCallScreen);
+RNCallKeep.setup({
+  android: {
+    alertTitle: 'Permissions required',
+    alertDescription: 'This application needs to access your phone accounts',
+    cancelButton: 'Cancel',
+    okButton: 'ok',
+    imageName: 'phone_account_icon',
+    additionalPermissions: [],
+    // Required to get audio in background when using Android 11
+    foregroundService: {
+      channelId: 'com.snehanshu.motorsaarthicustomerapp',
+      channelName: 'Foreground service for my app',
+      notificationTitle: 'My app is running on background',
+      notificationIcon: 'Path to the resource icon of the notification',
+    },
+  },
+  ios: {
+    appName: 'motor-saarthi',
+  },
+});
 
 // Note that an async function or a function that returns a Promise
 // is required for both subscribers.

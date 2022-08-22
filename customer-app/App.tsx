@@ -9,7 +9,7 @@ import notifee, {
   AndroidImportance,
 } from '@notifee/react-native';
 import { useEffect } from 'react';
-import { AppRegistry, Platform } from 'react-native';
+import { AppRegistry, Button, Platform } from 'react-native';
 import RNCallKeep from 'react-native-callkeep';
 
 if (Platform.OS === 'android') {
@@ -30,7 +30,7 @@ RNCallKeep.setup({
     alertDescription: 'This application needs to access your phone accounts',
     cancelButton: 'Cancel',
     okButton: 'ok',
-    imageName: 'phone_account_icon',
+    // imageName: 'phone_account_icon',
     additionalPermissions: [],
     // Required to get audio in background when using Android 11
     foregroundService: {
@@ -111,11 +111,61 @@ export default function App() {
     });
   }, []);
 
+  const call = () => {
+    const number = '112345';
+    console.log('Calling...', number);
+    RNCallKeep.startCall(Math.random().toString(), number, number);
+  };
+
+  useEffect(() => {
+    RNCallKeep.addEventListener(
+      'didReceiveStartCallAction',
+      ({ handle, callUUID, name }) => {
+        console.log('didReceiveStartCallAction');
+      },
+    );
+    RNCallKeep.addEventListener('answerCall', ({ callUUID }) => {
+      // Do your normal `Answering` actions here.
+      console.log('answerCall');
+    });
+    RNCallKeep.addEventListener('endCall', ({ callUUID }) => {
+      // Do your normal `Hang Up` actions here
+      console.log('endCall');
+    });
+    RNCallKeep.addEventListener(
+      'didDisplayIncomingCall',
+      ({
+        error,
+        callUUID,
+        handle,
+        localizedCallerName,
+        hasVideo,
+        fromPushKit,
+        payload,
+      }) => {
+        // you might want to do following things when receiving this event:
+        // - Start playing ringback if it is an outgoing call
+        console.log('didDisplayIncomingCall');
+      },
+    );
+    RNCallKeep.addEventListener(
+      'showIncomingCallUi',
+      ({ handle, callUUID, name }) => {
+        // Only when CallKeep is setup to be in self managed mode.
+        // Signals that the app must show an incoming call UI.
+        // The implementor must either call displayIncomingCall from
+        // react native or native android code to make this event fire.
+        console.log('showIncomingCallUi');
+      },
+    );
+  }, []);
+
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <Routes />
       </QueryClientProvider>
+      <Button title="Call" onPress={call} />
     </trpc.Provider>
   );
 }

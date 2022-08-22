@@ -57,6 +57,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Contact {userName}</title>
+</svelte:head>
+
 <div>
 	{#if successContact}
 		<div class="alert alert-success" role="alert">

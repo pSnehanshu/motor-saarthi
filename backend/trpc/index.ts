@@ -285,7 +285,14 @@ export const appRouter = createRouter()
                 include: {
                   OwnerCustomer: {
                     include: {
-                      User: true,
+                      User: {
+                        select: {
+                          id: true,
+                          name: true,
+                          created_at: true,
+                          updated_at: true,
+                        },
+                      },
                     },
                   },
                 },

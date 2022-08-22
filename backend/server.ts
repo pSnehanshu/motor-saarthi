@@ -32,9 +32,7 @@ app.get('/print-qr/:qrId', async (req, res) => {
     return RespondError(res, Errors.NOT_FOUND, { statusCode: 404 });
   }
 
-  const fullUrl = `${protocol}://${host}/qr/contact?qr=${encodeURIComponent(
-    qr?.id,
-  )}`;
+  const fullUrl = `${protocol}://${host}/qr/${encodeURIComponent(qr?.id)}`;
 
   QRCode.toDataURL(fullUrl, (err, code) => {
     res.render('qr/index', { qr, qrUrl: code });

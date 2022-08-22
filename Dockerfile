@@ -1,4 +1,4 @@
-FROM nginx:1.23.1-alpine as BASE
+FROM nginx:1.23.1-alpine as base
 
 # Set up nginx routing logic
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
@@ -14,7 +14,7 @@ COPY shared shared
 
 #############################
 
-FROM BASE as BUILD_STRANGER_WEBAPP
+FROM base as build_stranger_webapp
 WORKDIR /home/app/stranger-webapp
 
 COPY stranger-webapp/package*.json ./
@@ -28,7 +28,7 @@ COPY stranger-webapp/package*.json build/
 
 #############################
 
-FROM BASE as BUILD_BACKEND
+FROM base as build_backend
 WORKDIR /home/app/backend
 
 COPY backend/package*.json ./
@@ -40,7 +40,7 @@ COPY backend/google-service-account.json ./build/backend/
 
 #############################
 
-FROM BASE
+FROM base
 
 WORKDIR /home/app
 
@@ -55,12 +55,12 @@ RUN chmod +x boot.sh
 
 # Bring over the stranger webapp from previous stages
 WORKDIR /home/app/stranger-webapp
-COPY --from=BUILD_STRANGER_WEBAPP /home/app/stranger-webapp/build .
+COPY --from=build_stranger_webapp /home/app/stranger-webapp/build .
 RUN npm install
 
 # Bring over the backend from previous stages
 WORKDIR /home/app/backend
-COPY --from=BUILD_BACKEND /home/app/backend/build .
+COPY --from=build_backend /home/app/backend/build .
 COPY backend/package*.json ./
 RUN npm install --omit=dev
 RUN prisma generate --schema=../prisma/schema.prisma

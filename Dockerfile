@@ -36,7 +36,6 @@ RUN npm install
 
 COPY backend .
 RUN npm run build
-COPY backend/google-service-account.json ./build/backend/
 
 #############################
 
@@ -68,5 +67,7 @@ RUN prisma generate --schema=../prisma/schema.prisma
 # All DONE!
 WORKDIR /home/app
 ENV NODE_ENV=production
+
+EXPOSE 80
 
 CMD ["./boot.sh"]

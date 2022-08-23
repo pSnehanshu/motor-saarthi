@@ -1,22 +1,8 @@
 import Queue from 'better-queue';
-import firebaseAdmin from 'firebase-admin';
 import _ from 'lodash';
-import fs from 'fs';
-import path from 'path';
 import prisma from './prisma/prisma';
 import { ContactReasons } from '../shared/contact-reasons';
-
-// Intialize Firebase for FCM
-const firebase = firebaseAdmin.initializeApp({
-  credential: firebaseAdmin.credential.cert(
-    JSON.parse(
-      fs
-        .readFileSync(path.join(__dirname, 'google-service-account.json'))
-        .toString('utf8'),
-    ),
-  ),
-});
-const fcm = firebase.messaging();
+import { fcm } from './utils/firebase';
 
 type NotificationTask = {
   id: string;

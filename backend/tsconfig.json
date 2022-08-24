@@ -4,7 +4,7 @@
     "outDir": "build",
     "strict": true,
     "lib": ["ES2021", "DOM"],
-    "target": "ESNext",
+    "target": "ES2021",
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",

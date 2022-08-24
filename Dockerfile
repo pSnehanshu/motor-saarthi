@@ -1,13 +1,11 @@
-FROM nginx:1.23.1-alpine as base
-
-# Set up nginx routing logic
-COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
-
-# Install Node.js and necessary packages
-RUN apk add --update nodejs npm openrc
-RUN node -v && npm -v
+FROM node:16.17-alpine as base
 RUN npm install --global pm2 prisma
-RUN pm2 -v; prisma -v
+
+# Install and setup Nginx
+RUN apk update && apk add --update nginx openrc
+COPY nginx/nginx.conf /etc/nginx/http.d/default.conf
+
+RUN node -v; npm -v; prisma -v; pm2 -v; nginx -v
 
 WORKDIR /home/app/
 COPY shared shared
@@ -48,10 +46,6 @@ RUN rm -rf shared
 # Bring over prisma directory
 COPY backend/prisma prisma
 
-# Copy the boot.sh file and make it executable
-COPY boot.sh boot.sh
-RUN chmod +x boot.sh
-
 # Bring over the stranger webapp from previous stages
 WORKDIR /home/app/stranger-webapp
 COPY --from=build_stranger_webapp /home/app/stranger-webapp/build .
@@ -66,6 +60,11 @@ RUN prisma generate --schema=../prisma/schema.prisma
 
 # All DONE!
 WORKDIR /home/app
+
+# Copy the boot.sh file and make it executable
+COPY boot.sh boot.sh
+RUN chmod +x boot.sh
+
 ENV NODE_ENV=production
 
 EXPOSE 80

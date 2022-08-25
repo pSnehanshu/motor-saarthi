@@ -334,7 +334,6 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-    implementation project(':react-native-callkeep')
 }
 
 if (isNewArchitectureEnabled()) {

@@ -21,7 +21,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
-import io.wazo.callkeep.RNCallKeepPackage;
 
 public class MainApplication extends Application implements ReactApplication {
   private final ReactNativeHost mReactNativeHost = new ReactNativeHostWrapper(

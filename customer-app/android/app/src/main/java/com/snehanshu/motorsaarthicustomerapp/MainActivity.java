@@ -8,7 +8,6 @@ import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
 
 import expo.modules.ReactActivityDelegateWrapper;
-import io.wazo.callkeep.RNCallKeepModule;
 
 public class MainActivity extends ReactActivity {
   @Override
@@ -54,16 +53,5 @@ public class MainActivity extends ReactActivity {
     // Use the default back button implementation on Android S
     // because it's doing more than {@link Activity#moveTaskToBack} in fact.
     super.invokeDefaultOnBackPressed();
-  }
-
-  // Permission results
-  @Override
-  public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    switch (requestCode) {
-        case RNCallKeepModule.REQUEST_READ_PHONE_STATE:
-            RNCallKeepModule.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            break;
-    }
   }
 }

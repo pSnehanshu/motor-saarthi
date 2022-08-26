@@ -57,8 +57,9 @@ function createRouter() {
 }
 export const appRouter = createRouter()
   .query('ping', {
-    resolve() {
-      console.log(new Date(), 'Ping received!');
+    input: z.string().default('N/A'),
+    resolve({ input }) {
+      console.log(new Date(), 'Ping received! Device said:', input);
     },
   })
   .merge(

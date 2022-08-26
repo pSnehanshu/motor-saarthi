@@ -6,7 +6,9 @@ function getFirebaseCredentials() {
   // First try to get it from ENV, if not set, read from file
   const buffer = process.env.GOOGLE_SERVICE_ACCOUNT_B64
     ? Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_B64, 'base64')
-    : fs.readFileSync(path.join(__dirname, 'google-service-account.json'));
+    : fs.readFileSync(
+        path.join(__dirname, '..', 'google-service-account.json'),
+      );
 
   // Convert to String and then parse
   const creds = JSON.parse(

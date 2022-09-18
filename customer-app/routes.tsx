@@ -8,10 +8,12 @@ import Auth from './views/auth/Auth';
 import Home from './views/protected/Home';
 import { useEffect } from 'react';
 import { registerDevice } from './utils/register-device';
+import MyVehicles from './views/protected/MyVehicles';
 
 export type RootStackParamList = {
   Auth: undefined;
   Home: undefined;
+  MyVehicles: undefined;
 };
 export const Stack = createNativeStackNavigator<RootStackParamList>();
 export type ScreenProps<RouteName extends keyof RootStackParamList> =
@@ -32,6 +34,7 @@ export function Routes() {
         {isLoggedIn ? (
           <>
             <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="MyVehicles" component={MyVehicles} />
           </>
         ) : (
           <>

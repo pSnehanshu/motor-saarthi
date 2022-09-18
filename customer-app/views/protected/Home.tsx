@@ -1,45 +1,55 @@
-import notifee from '@notifee/react-native';
-import { Button, Text, View, ActivityIndicator } from 'react-native';
+import { Button, View, ActivityIndicator, FlatList } from 'react-native';
 import { useRemoveAuthToken } from '../../queries/auth';
+import { ScreenProps } from '../../routes';
 
-export default function Home() {
-  const { logout, mutation } = useRemoveAuthToken();
+type MenuItem = {
+  title: string;
+  onPress?: () => void;
+};
 
-  const onDisplayNotification = async () => {
-    // Request permissions (required for iOS)
-    await notifee.requestPermission();
+export default function Home({ navigation }: ScreenProps<'Home'>) {
+  const { logout, mutation: logoutMutation } = useRemoveAuthToken();
 
-    // Create a channel (required for Android)
-    const channelId = await notifee.createChannel({
-      id: 'default',
-      name: 'Default Channel',
-    });
-
-    // Display a notification
-    await notifee.displayNotification({
-      title: 'Notification Title',
-      body: 'Main body content of the notification',
-      android: {
-        channelId,
-        pressAction: {
-          id: 'default',
-        },
-        progress: {
-          max: 100,
-          current: 30,
-          indeterminate: true,
-        },
-        // ongoing: true,
+  const menuItems: MenuItem[] = [
+    {
+      title: 'My vehicles',
+      onPress() {
+        navigation.navigate('MyVehicles');
       },
-    });
-  };
+    },
+    {
+      title: 'Register new vehicle',
+    },
+    {
+      title: 'Buy QR tags',
+    },
+    {
+      title: 'Scan a QR',
+    },
+  ];
 
   return (
     <View>
-      <Text>Home screen is this, ain't it?</Text>
-      <Button title="Display Notification" onPress={onDisplayNotification} />
+      <FlatList
+        data={menuItems}
+        renderItem={({ item }) => (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'column',
+              margin: 1,
+            }}
+          >
+            <Button
+              title={item.title}
+              onPress={() => item.onPress && item.onPress()}
+            />
+          </View>
+        )}
+        numColumns={2}
+      />
 
-      {mutation.isLoading ? (
+      {logoutMutation.isLoading ? (
         <ActivityIndicator size="large" />
       ) : (
         <Button title="Logout" onPress={logout} />

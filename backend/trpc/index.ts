@@ -98,6 +98,31 @@ export const appRouter = createRouter()
             select: null,
           });
         },
+      })
+      .query('fetch-vehicles', {
+        input: z.object({
+          take: z.number().default(10),
+          skip: z.number().default(0),
+        }),
+        async resolve({ input, ctx }) {
+          const vehicles = await prisma.vehicle.findMany({
+            where: {
+              owner_cust_id: ctx.customerId,
+            },
+            include: {
+              QRs: {
+                select: {
+                  id: true,
+                  created_at: true,
+                },
+              },
+            },
+            skip: input.skip,
+            take: input.take,
+          });
+
+          return vehicles;
+        },
       }),
   )
   .merge(

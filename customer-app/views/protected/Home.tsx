@@ -29,7 +29,7 @@ export default function Home() {
           current: 30,
           indeterminate: true,
         },
-        ongoing: true,
+        // ongoing: true,
       },
     });
   };

@@ -4,22 +4,43 @@ import type { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import { queryClient } from './queries/client';
 import { Routes } from './routes';
 import { trpc, trpcClient } from './utils/trpc';
-import notifee, {
-  AndroidCategory,
-  AndroidImportance,
-} from '@notifee/react-native';
-import { useEffect } from 'react';
-import { AppRegistry, Text, View } from 'react-native';
+import notifee, { AndroidColor, Event, EventType } from '@notifee/react-native';
+import {
+  ContactReasons,
+  ContactReasonsHumanFriendly,
+} from './shared/contact-reasons';
 
-function ContactCallScreen() {
-  return (
-    <View>
-      <Text>Full Screen notif</Text>
-    </View>
-  );
+// Foreground service
+notifee.registerForegroundService((notification) => {
+  return new Promise(() => {
+    // Never quit
+  });
+});
+displayForegroundServiceNotification();
+async function displayForegroundServiceNotification() {
+  // Request permissions (required for iOS)
+  await notifee.requestPermission();
+
+  // Create a channel (required for Android)
+  const channelId = await notifee.createChannel({
+    id: 'default',
+    name: 'Default Channel',
+  });
+
+  notifee.displayNotification({
+    title: 'MotorSaarthi running...',
+    body: 'Do not close it please',
+    android: {
+      channelId,
+      asForegroundService: true,
+      color: AndroidColor.YELLOW,
+      colorized: true,
+      pressAction: {
+        id: 'default',
+      },
+    },
+  });
 }
-
-AppRegistry.registerComponent('contact-call-screen', () => ContactCallScreen);
 
 // Note that an async function or a function that returns a Promise
 // is required for both subscribers.
@@ -28,6 +49,9 @@ async function onMessageReceived(
 ) {
   trpcClient.query('ping');
   console.log('Message received', message);
+
+  const { data } = message;
+  if (!data) return;
 
   // Request permissions (required for iOS)
   await notifee.requestPermission();
@@ -40,53 +64,31 @@ async function onMessageReceived(
 
   // Display a notification
   await notifee.displayNotification({
-    title: 'Notification Title',
-    body: 'Main body content of the notification',
+    title: ContactReasonsHumanFriendly[data.reason as ContactReasons],
+    body: `Please reach to your vehicle ${data.vehicleRegNum} ASAP!`,
     android: {
       channelId,
       pressAction: {
         id: 'default',
       },
-      // progress: {
-      //   max: 100,
-      //   current: 30,
-      //   indeterminate: true,
-      // },
-      // ongoing: true,
-      fullScreenAction: {
-        id: 'default',
-        mainComponent: 'contact-call-screen',
-      },
-      category: AndroidCategory.CALL,
-      importance: AndroidImportance.HIGH,
     },
   });
 }
 
-const FCM = messaging();
+async function onNotificationEvent(e: Event, type: 'bg' | 'fg') {
+  console.log('Type', type);
+  if (e.type === EventType.PRESS) {
+    console.log('Notif pressed');
+  }
+}
+notifee.onBackgroundEvent((e) => onNotificationEvent(e, 'bg'));
+notifee.onForegroundEvent((e) => onNotificationEvent(e, 'fg'));
 
+const FCM = messaging();
 FCM.onMessage(onMessageReceived);
 FCM.setBackgroundMessageHandler(onMessageReceived);
 
 export default function App() {
-  useEffect(() => {
-    FCM.onNotificationOpenedApp((remoteMessage) => {
-      console.log(
-        'Notification caused app to open from background state:',
-        remoteMessage.notification,
-      );
-    });
-
-    FCM.getInitialNotification().then((remoteMessage) => {
-      if (remoteMessage) {
-        console.log(
-          'Notification caused app to open from quit state:',
-          remoteMessage.notification,
-        );
-      }
-    });
-  }, []);
-
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>

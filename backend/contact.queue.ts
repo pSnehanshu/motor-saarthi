@@ -12,8 +12,8 @@ type NotificationTask = {
   reason: keyof typeof ContactReasons;
   token: string;
   notif: {
-    body: string;
-    title: string;
+    body?: string;
+    title?: string;
     imageUrl?: string;
     data: Record<string, string>;
   };

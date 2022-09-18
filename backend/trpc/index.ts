@@ -6,10 +6,7 @@ import { DeviceType } from '@prisma/client';
 import _ from 'lodash';
 import { addMinutes, isBefore } from 'date-fns';
 import prisma from '../prisma/prisma';
-import {
-  ContactReasons,
-  ContactReasonsHumanFriendly,
-} from '../../shared/contact-reasons';
+import { ContactReasons } from '../../shared/contact-reasons';
 import { sendNotificationQueue } from '../contact.queue';
 import cuid from 'cuid';
 
@@ -353,9 +350,11 @@ export const appRouter = createRouter()
                 token: d.token,
                 attemptNumber: 1,
                 notif: {
-                  title: 'Someone contacted you about your vehicle',
-                  body: `Your vehicle ${qr.Vehicle?.registration_num} is ${ContactReasonsHumanFriendly[reason]}. Please reach there as soon as possible.`,
-                  data: {},
+                  data: {
+                    reason,
+                    vehicleId: qr.vehicle_id!,
+                    vehicleRegNum: qr.Vehicle?.registration_num!,
+                  },
                 },
               });
             });

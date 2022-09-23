@@ -16,7 +16,7 @@ export default function ScanQR({ navigation }: ScreenProps<'ScanQR'>) {
 
   function pauseScanning(duration = 3000) {
     setIsScanningPaused(true);
-    setTimeout(() => setIsScanningPaused(false), duration);
+    return setTimeout(() => setIsScanningPaused(false), duration);
   }
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function ScanQR({ navigation }: ScreenProps<'ScanQR'>) {
   return (
     <View p="2">
       {hasPermission === 'pending' ? (
-        <Text>Requesting permission for camera access, please wait...</Text>
+        <Text>Initializing camera, please wait...</Text>
       ) : hasPermission === 'no' ? (
         <Text>No access to camera</Text>
       ) : (
@@ -45,7 +45,7 @@ export default function ScanQR({ navigation }: ScreenProps<'ScanQR'>) {
                 isScanningPaused
                   ? undefined
                   : ({ data }) => {
-                      pauseScanning();
+                      const timeout = pauseScanning();
 
                       if (!data.startsWith(hostname)) {
                         alert('Invalid QR code!');
@@ -64,6 +64,7 @@ export default function ScanQR({ navigation }: ScreenProps<'ScanQR'>) {
                         return;
                       }
 
+                      clearTimeout(timeout);
                       navigation.replace('LinkQR', { qrId });
                     }
               }

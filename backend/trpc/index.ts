@@ -13,6 +13,11 @@ import cuid from 'cuid';
 
 const isPhoneNumberValidator = z.string().regex(/^[6-9]\d{9}$/gi);
 
+type QRVerify = {
+  isAvailable: boolean;
+  reason: string;
+};
+
 function jwtVerify(token: string, secret: string, options: VerifyOptions) {
   return new Promise<JwtPayload>((resolve, reject) => {
     jwt.verify(token, secret, options, (err, parsed) => {
@@ -170,7 +175,7 @@ export const appRouter = createRouter()
         input: z.object({
           qrId: z.string().cuid(),
         }),
-        async resolve({ input }) {
+        async resolve({ input }): Promise<QRVerify> {
           const qr = await prisma.qR.findUnique({
             where: {
               id: input.qrId,
@@ -181,20 +186,23 @@ export const appRouter = createRouter()
           });
 
           if (!qr) {
-            throw new trpc.TRPCError({
-              code: 'NOT_FOUND',
-              message: 'QR code does not exits',
-            });
+            return {
+              isAvailable: false,
+              reason: 'QR does not exists',
+            };
           }
 
           if (typeof qr.vehicle_id === 'string') {
-            throw new trpc.TRPCError({
-              code: 'CONFLICT',
-              message: 'QR already linked to another vehicle',
-            });
+            return {
+              isAvailable: false,
+              reason: 'QR already linked to another vehicle',
+            };
           }
 
-          return input.qrId;
+          return {
+            isAvailable: true,
+            reason: 'Ok',
+          };
         },
       }),
   )

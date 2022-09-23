@@ -109,14 +109,6 @@ export const appRouter = createRouter()
             where: {
               owner_cust_id: ctx.customerId,
             },
-            include: {
-              QRs: {
-                select: {
-                  id: true,
-                  created_at: true,
-                },
-              },
-            },
             skip: input.skip,
             take: input.take,
             orderBy: {

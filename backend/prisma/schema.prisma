@@ -13,7 +13,7 @@ datasource db {
 
 model QR {
   id              String           @id @default(cuid())
-  vehicle_id      String?
+  vehicle_id      String?          @unique
   Vehicle         Vehicle?         @relation(fields: [vehicle_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
   created_at      DateTime         @default(now())
   updated_at      DateTime         @updatedAt
@@ -28,7 +28,7 @@ model Vehicle {
   OwnerCustomer    Customer         @relation(fields: [owner_cust_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   created_at       DateTime         @default(now())
   updated_at       DateTime         @updatedAt
-  QRs              QR[]
+  QR               QR?
   ContactAttempts  ContactAttempt[]
 }
 

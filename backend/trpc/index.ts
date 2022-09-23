@@ -4,6 +4,7 @@ import { z } from 'zod';
 import jwt, { VerifyOptions, JwtPayload } from 'jsonwebtoken';
 import { DeviceType } from '@prisma/client';
 import _ from 'lodash';
+import QRCode from 'qrcode';
 import { addMinutes, isBefore } from 'date-fns';
 import prisma from '../prisma/prisma';
 import { ContactReasons } from '../../shared/contact-reasons';
@@ -45,7 +46,7 @@ export async function createContext(
       typeof parsed?.Customer?.id === 'string' ? parsed.Customer.id : undefined;
   }
 
-  return { userId, customerId };
+  return { userId, customerId, req };
 }
 export type Context = trpc.inferAsyncReturnType<typeof createContext>;
 
@@ -141,7 +142,28 @@ export const appRouter = createRouter()
             });
           }
 
-          return vehicle;
+          // Generate QR code
+          let qrCodeURL: string | null = null;
+          if (vehicle.QR) {
+            const proxyHost = ctx.req.headers['x-forwarded-host'];
+            const host = proxyHost ? proxyHost : ctx.req.headers.host;
+            const protocol = ctx.req.protocol;
+
+            const fullUrl = `${protocol}://${host}/qr/${encodeURIComponent(
+              vehicle.QR.id,
+            )}`;
+            try {
+              const code = await QRCode.toDataURL(fullUrl);
+              qrCodeURL = code;
+            } catch (error) {
+              console.error(error);
+            }
+          }
+
+          return {
+            ...vehicle,
+            qrCodeURL,
+          };
         },
       }),
   )

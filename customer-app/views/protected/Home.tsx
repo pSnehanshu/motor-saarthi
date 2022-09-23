@@ -1,4 +1,6 @@
-import { Button, View, ActivityIndicator, FlatList } from 'react-native';
+import { Button, View, ActivityIndicator } from 'react-native';
+import _ from 'lodash';
+import { Row, Pressable, Center } from 'native-base';
 import { useRemoveAuthToken } from '../../queries/auth';
 import { ScreenProps } from '../../routes';
 
@@ -28,26 +30,28 @@ export default function Home({ navigation }: ScreenProps<'Home'>) {
     },
   ];
 
+  const itemsPerRow = 2;
+
   return (
     <View>
-      <FlatList
-        data={menuItems}
-        renderItem={({ item }) => (
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'column',
-              margin: 1,
-            }}
-          >
-            <Button
-              title={item.title}
+      {_.chunk(menuItems, itemsPerRow).map((row, i) => (
+        <Row key={i}>
+          {row.map((item, j) => (
+            <Pressable
+              key={j}
+              width={`${100 / itemsPerRow}%`}
+              height={200}
               onPress={() => item.onPress && item.onPress()}
-            />
-          </View>
-        )}
-        numColumns={2}
-      />
+              borderWidth={4}
+              borderColor="primary.800"
+            >
+              <Center height="100%" width="100%">
+                {item.title}
+              </Center>
+            </Pressable>
+          ))}
+        </Row>
+      ))}
 
       {logoutMutation.isLoading ? (
         <ActivityIndicator size="large" />

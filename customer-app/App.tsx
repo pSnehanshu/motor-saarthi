@@ -1,6 +1,7 @@
 import { QueryClientProvider } from 'react-query';
 import messaging from '@react-native-firebase/messaging';
 import type { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
+import { NativeBaseProvider } from 'native-base';
 import { queryClient } from './queries/client';
 import { Routes } from './routes';
 import { trpc, trpcClient } from './utils/trpc';
@@ -92,7 +93,9 @@ export default function App() {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <Routes />
+        <NativeBaseProvider>
+          <Routes />
+        </NativeBaseProvider>
       </QueryClientProvider>
     </trpc.Provider>
   );

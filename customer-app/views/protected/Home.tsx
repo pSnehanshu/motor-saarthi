@@ -22,7 +22,7 @@ export default function Home({ navigation }: ScreenProps<'Home'>) {
     {
       title: 'Register new vehicle',
       onPress() {
-        navigation.navigate('RegisterVehicle');
+        navigation.navigate('ScanQR');
       },
     },
     {

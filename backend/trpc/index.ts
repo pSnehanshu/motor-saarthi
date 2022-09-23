@@ -165,6 +165,37 @@ export const appRouter = createRouter()
             qrCodeURL,
           };
         },
+      })
+      .query('validate-qr', {
+        input: z.object({
+          qrId: z.string().cuid(),
+        }),
+        async resolve({ input }) {
+          const qr = await prisma.qR.findUnique({
+            where: {
+              id: input.qrId,
+            },
+            select: {
+              vehicle_id: true,
+            },
+          });
+
+          if (!qr) {
+            throw new trpc.TRPCError({
+              code: 'NOT_FOUND',
+              message: 'QR code does not exits',
+            });
+          }
+
+          if (typeof qr.vehicle_id === 'string') {
+            throw new trpc.TRPCError({
+              code: 'CONFLICT',
+              message: 'QR already linked to another vehicle',
+            });
+          }
+
+          return input.qrId;
+        },
       }),
   )
   .merge(

@@ -10,20 +10,17 @@ import { useEffect } from 'react';
 import { registerDevice } from './utils/register-device';
 import MyVehicles from './views/protected/MyVehicles';
 import VehicleInfo from './views/protected/VehicleInfo';
-import RegisterVehicle from './views/protected/RegisterVehicle';
+import ScanQR from './views/protected/RegisterVehicle/ScanQR';
+import LinkQR from './views/protected/RegisterVehicle/LinkQR';
 
 export type RootStackParamList = {
   Auth: undefined;
   Home: undefined;
   MyVehicles: undefined;
   VehicleInfo: { id: string };
-  RegisterVehicle: {
-    vehicle?: {
-      id: string;
-      name: string;
-      registration_num: string;
-    };
-    qrId?: string;
+  ScanQR: undefined;
+  LinkQR: {
+    qrId: string;
   };
 };
 export const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -47,7 +44,8 @@ export function Routes() {
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="MyVehicles" component={MyVehicles} />
             <Stack.Screen name="VehicleInfo" component={VehicleInfo} />
-            <Stack.Screen name="RegisterVehicle" component={RegisterVehicle} />
+            <Stack.Screen name="ScanQR" component={ScanQR} />
+            <Stack.Screen name="LinkQR" component={LinkQR} />
           </>
         ) : (
           <>

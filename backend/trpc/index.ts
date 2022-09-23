@@ -118,6 +118,31 @@ export const appRouter = createRouter()
 
           return vehicles;
         },
+      })
+      .query('vehicle-info', {
+        input: z.object({
+          id: z.string().cuid(),
+        }),
+        async resolve({ input, ctx }) {
+          const vehicle = await prisma.vehicle.findFirst({
+            where: {
+              id: input.id,
+              owner_cust_id: ctx.customerId,
+            },
+            include: {
+              QR: true,
+            },
+          });
+
+          if (!vehicle) {
+            throw new trpc.TRPCError({
+              code: 'NOT_FOUND',
+              message: `Vehicle ${input.id} not found`,
+            });
+          }
+
+          return vehicle;
+        },
       }),
   )
   .merge(

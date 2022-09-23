@@ -9,11 +9,13 @@ import Home from './views/protected/Home';
 import { useEffect } from 'react';
 import { registerDevice } from './utils/register-device';
 import MyVehicles from './views/protected/MyVehicles';
+import VehicleInfo from './views/protected/VehicleInfo';
 
 export type RootStackParamList = {
   Auth: undefined;
   Home: undefined;
   MyVehicles: undefined;
+  VehicleInfo: { id: string };
 };
 export const Stack = createNativeStackNavigator<RootStackParamList>();
 export type ScreenProps<RouteName extends keyof RootStackParamList> =
@@ -35,6 +37,7 @@ export function Routes() {
           <>
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="MyVehicles" component={MyVehicles} />
+            <Stack.Screen name="VehicleInfo" component={VehicleInfo} />
           </>
         ) : (
           <>

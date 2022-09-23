@@ -119,6 +119,9 @@ export const appRouter = createRouter()
             },
             skip: input.skip,
             take: input.take,
+            orderBy: {
+              created_at: 'desc',
+            },
           });
 
           return vehicles;

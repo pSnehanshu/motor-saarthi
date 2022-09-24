@@ -4,8 +4,7 @@ import messaging from '@react-native-firebase/messaging';
 import { queryClient } from './client';
 import { trpc } from '../utils/trpc';
 import { Platform } from 'react-native';
-
-const AUTH_TOKEN = 'auth-token';
+import { AUTH_TOKEN, getAuthToken } from './getAuthToken';
 
 export async function setAuthToken(token: string) {
   await SecureStore.setItemAsync(AUTH_TOKEN, token);
@@ -39,15 +38,6 @@ export function useRemoveAuthToken() {
         });
     },
   };
-}
-
-export function getAuthToken() {
-  return SecureStore.getItemAsync(AUTH_TOKEN)
-    .then((v) => v)
-    .catch((err) => {
-      console.error(err);
-      return null;
-    });
 }
 
 export function useIsLoggedIn() {

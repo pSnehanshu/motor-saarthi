@@ -1,6 +1,6 @@
 import { createReactQueryHooks } from '@trpc/react';
 import type { AppRouter } from '../../backend/trpc';
-import { getAuthToken } from '../queries/auth';
+import { getAuthToken } from '../queries/getAuthToken';
 import hostname from './hostname';
 
 export const trpc = createReactQueryHooks<AppRouter>();

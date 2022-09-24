@@ -1,6 +1,5 @@
-import { Button, View, ActivityIndicator } from 'react-native';
 import _ from 'lodash';
-import { Row, Pressable, Center } from 'native-base';
+import { Row, Pressable, Center, ScrollView, Button } from 'native-base';
 import { useRemoveAuthToken } from '../../queries/auth';
 import { ScreenProps } from '../../routes';
 
@@ -36,7 +35,7 @@ export default function Home({ navigation }: ScreenProps<'Home'>) {
   const itemsPerRow = 2;
 
   return (
-    <View>
+    <ScrollView>
       {_.chunk(menuItems, itemsPerRow).map((row, i) => (
         <Row key={i}>
           {row.map((item, j) => (
@@ -56,11 +55,9 @@ export default function Home({ navigation }: ScreenProps<'Home'>) {
         </Row>
       ))}
 
-      {logoutMutation.isLoading ? (
-        <ActivityIndicator size="large" />
-      ) : (
-        <Button title="Logout" onPress={logout} />
-      )}
-    </View>
+      <Button m="4" isLoading={logoutMutation.isLoading} onPress={logout}>
+        Logout
+      </Button>
+    </ScrollView>
   );
 }

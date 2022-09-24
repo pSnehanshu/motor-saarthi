@@ -1,6 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { ActivityIndicator, Button, Text, TextInput, View } from 'react-native';
+import {
+  Button,
+  Text,
+  Input,
+  FormControl,
+  ScrollView,
+  Pressable,
+} from 'native-base';
 import { ScreenProps } from '../../routes';
 import { setAuthToken } from '../../queries/auth';
 import { trpc } from '../../utils/trpc';
@@ -26,49 +33,60 @@ export default function Auth({}: ScreenProps<'Auth'>) {
     },
   });
 
-  const loading = requestOtpMutation.isLoading || submitOtpMutation.isLoading;
-
   return (
-    <View>
-      {loading ? (
-        <ActivityIndicator size="large" />
-      ) : otpSent ? (
+    <ScrollView p="2">
+      {otpSent ? (
         <>
-          <Text
-            onPress={() => {
-              setOtpSent(false);
-              setPhone('');
-            }}
-          >
-            Phone: {phone} (Tap to change)
-          </Text>
-          <TextInput
-            onChangeText={setOtp}
-            value={otp}
-            placeholder="Enter 4-digit OTP"
-            keyboardType="numeric"
-          />
+          <FormControl isRequired>
+            <Pressable
+              onPress={() => {
+                setOtpSent(false);
+                setPhone('');
+              }}
+            >
+              <FormControl.Label>
+                Phone: {phone} (Tap to change)
+              </FormControl.Label>
+            </Pressable>
+            <Input
+              onChangeText={setOtp}
+              value={otp}
+              placeholder="Enter 4-digit OTP"
+              keyboardType="numeric"
+            />
+          </FormControl>
+
           <Button
+            my="4"
+            isLoading={submitOtpMutation.isLoading}
             onPress={() => otp && submitOtpMutation.mutate({ phone, otp })}
-            title="Submit OTP"
-          />
+          >
+            Submit OTP
+          </Button>
         </>
       ) : (
         <>
-          <TextInput
-            onChangeText={setPhone}
-            value={phone}
-            placeholder="Enter your phone number"
-            keyboardType="numeric"
-          />
+          <FormControl isRequired>
+            <FormControl.Label>Phone number</FormControl.Label>
+            <Input
+              onChangeText={setPhone}
+              value={phone}
+              placeholder="9876543210"
+              keyboardType="numeric"
+            />
+          </FormControl>
+
           <Button
+            my="4"
+            isLoading={requestOtpMutation.isLoading}
             onPress={() => phone && requestOtpMutation.mutate({ phone })}
-            title="Send OTP"
-          />
+          >
+            Send OTP
+          </Button>
         </>
       )}
 
       <StatusBar style="auto" />
-    </View>
+    </ScrollView>
   );
 }

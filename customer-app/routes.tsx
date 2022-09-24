@@ -13,14 +13,24 @@ import VehicleInfo from './views/protected/VehicleInfo';
 import ScanQR from './views/protected/RegisterVehicle/ScanQR';
 import LinkQR from './views/protected/RegisterVehicle/LinkQR';
 
+type Vehicle = {
+  id: string;
+  name: string;
+  regNum: string;
+  wheelCount: '2' | '3' | '4';
+};
+
 export type RootStackParamList = {
   Auth: undefined;
   Home: undefined;
   MyVehicles: undefined;
   VehicleInfo: { id: string };
-  ScanQR: undefined;
+  ScanQR: {
+    vehicle?: Vehicle;
+  };
   LinkQR: {
     qrId: string;
+    vehicle?: Vehicle;
   };
 };
 export const Stack = createNativeStackNavigator<RootStackParamList>();

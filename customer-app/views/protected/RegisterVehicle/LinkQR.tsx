@@ -8,7 +8,6 @@ import {
   ScrollView,
   Spinner,
   Text,
-  View,
 } from 'native-base';
 import { useState } from 'react';
 import { ScreenProps } from '../../../routes';
@@ -16,7 +15,7 @@ import { trpc } from '../../../utils/trpc';
 
 export default function LinkQR({
   route: {
-    params: { qrId },
+    params: { qrId, vehicle },
   },
   navigation,
 }: ScreenProps<'LinkQR'>) {
@@ -38,14 +37,17 @@ export default function LinkQR({
     },
   );
 
-  const [name, setName] = useState('');
+  const [name, setName] = useState(vehicle?.name ?? '');
   const [nameTouched, setNameTouched] = useState(false);
-  const [regNum, setRegNum] = useState('');
+  const [regNum, setRegNum] = useState(vehicle?.regNum ?? '');
   const [regNumTouched, setRegNumTouched] = useState(false);
-  const [wheelCount, setWheelCount] = useState<'2' | '3' | '4'>();
+  const [wheelCount, setWheelCount] = useState<'2' | '3' | '4' | undefined>(
+    vehicle?.wheelCount ?? undefined,
+  );
 
   const handleFormSubmit = async () => {
     registerVehicleMutation.mutate({
+      id: vehicle?.id,
       name,
       regNum,
       wheelCount,
@@ -65,7 +67,12 @@ export default function LinkQR({
             <>
               <Heading>Enter vehicle details</Heading>
 
-              <FormControl isRequired isInvalid={!name && nameTouched} my="1">
+              <FormControl
+                isRequired
+                isInvalid={!name && nameTouched}
+                isDisabled={!!vehicle}
+                my="1"
+              >
                 <FormControl.Label>Name</FormControl.Label>
                 <Input
                   type="text"
@@ -80,6 +87,7 @@ export default function LinkQR({
               <FormControl
                 isRequired
                 isInvalid={!regNum && regNumTouched}
+                isDisabled={!!vehicle}
                 my="1"
               >
                 <FormControl.Label>Registration number</FormControl.Label>
@@ -96,7 +104,7 @@ export default function LinkQR({
                 <FormControl.ErrorMessage>Required</FormControl.ErrorMessage>
               </FormControl>
 
-              <FormControl isRequired my="1">
+              <FormControl isRequired isDisabled={!!vehicle} my="1">
                 <FormControl.Label>Wheels count</FormControl.Label>
                 <Radio.Group
                   name="wheelType"
@@ -126,14 +134,22 @@ export default function LinkQR({
                 <FormControl.ErrorMessage>Required</FormControl.ErrorMessage>
               </FormControl>
 
-              <Button my="8" onPress={handleFormSubmit}>
-                Register you vehicle
+              <Button
+                my="8"
+                disabled={registerVehicleMutation.isLoading}
+                onPress={handleFormSubmit}
+              >
+                {registerVehicleMutation.isLoading ? (
+                  <Spinner />
+                ) : (
+                  <Text color="white">Register your vehicle</Text>
+                )}
               </Button>
             </>
           ) : (
             <>
               <Text>{isQRValid?.reason}</Text>
-              <Button onPress={() => navigation.replace('ScanQR')}>
+              <Button onPress={() => navigation.replace('ScanQR', { vehicle })}>
                 Scan another
               </Button>
             </>

@@ -8,7 +8,12 @@ import { isCuid } from '../../../utils/isCuid';
 // @ts-ignore
 const BarCodeScanner = Factory(ExpoBarCodeScanner);
 
-export default function ScanQR({ navigation }: ScreenProps<'ScanQR'>) {
+export default function ScanQR({
+  navigation,
+  route: {
+    params: { vehicle },
+  },
+}: ScreenProps<'ScanQR'>) {
   const [hasPermission, setHasPermission] = useState<'yes' | 'no' | 'pending'>(
     'pending',
   );
@@ -65,7 +70,7 @@ export default function ScanQR({ navigation }: ScreenProps<'ScanQR'>) {
                       }
 
                       clearTimeout(timeout);
-                      navigation.replace('LinkQR', { qrId });
+                      navigation.replace('LinkQR', { qrId, vehicle });
                     }
               }
               barCodeTypes={[ExpoBarCodeScanner.Constants.BarCodeType.qr]}

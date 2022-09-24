@@ -18,6 +18,7 @@ export default function VehicleInfo({
   route: {
     params: { id },
   },
+  navigation,
 }: ScreenProps<'VehicleInfo'>) {
   const {
     data: vehicle,
@@ -52,7 +53,22 @@ export default function VehicleInfo({
               </>
             ) : (
               <>
-                <Button>Link QR code</Button>
+                <Button
+                  onPress={() =>
+                    navigation.navigate('ScanQR', {
+                      vehicle: vehicle
+                        ? {
+                            id: vehicle.id,
+                            name: vehicle.name ?? '',
+                            regNum: vehicle.registration_num ?? '',
+                            wheelCount: vehicle.wheelCount as '2' | '3' | '4',
+                          }
+                        : undefined,
+                    })
+                  }
+                >
+                  Link QR code
+                </Button>
               </>
             )}
           </Button.Group>

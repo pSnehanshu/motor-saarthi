@@ -211,6 +211,7 @@ export const appRouter = createRouter()
       .mutation('register-vehicle', {
         input: z.object({
           qrId: z.string().cuid(),
+          id: z.string().cuid().optional(),
           name: z.string(),
           regNum: z.string(),
           wheelCount: z.enum(['2', '3', '4']).default('2'),
@@ -225,16 +226,38 @@ export const appRouter = createRouter()
             });
           }
 
-          // Create vehicle
-          const vehicle = await prisma.vehicle.create({
-            data: {
-              name: input.name,
-              registration_num: input.regNum,
-              owner_cust_id: ctx.customerId!,
-              wheelCount: input.wheelCount,
-            },
-            select: { id: true },
-          });
+          let vehicleId: string;
+
+          if (input.id) {
+            // Check if vehicle exists and belongs to this customer
+            const vehicle = await prisma.vehicle.findUnique({
+              where: { id: input.id },
+              select: { id: true, owner_cust_id: true },
+            });
+
+            if (!vehicle || vehicle.owner_cust_id !== ctx.customerId) {
+              throw new trpc.TRPCError({
+                code: 'NOT_FOUND',
+                message:
+                  'Vehicle not found, do not submit id to create a new one',
+              });
+            }
+
+            vehicleId = vehicle.id;
+          } else {
+            // Create vehicle
+            const vehicle = await prisma.vehicle.create({
+              data: {
+                name: input.name,
+                registration_num: input.regNum,
+                owner_cust_id: ctx.customerId!,
+                wheelCount: input.wheelCount,
+              },
+              select: { id: true },
+            });
+
+            vehicleId = vehicle.id;
+          }
 
           // Assign QR to the vehicle
           await prisma.qR.update({
@@ -242,11 +265,11 @@ export const appRouter = createRouter()
               id: input.qrId,
             },
             data: {
-              vehicle_id: vehicle.id,
+              vehicle_id: vehicleId,
             },
           });
 
-          return vehicle;
+          return { id: vehicleId };
         },
       }),
   )

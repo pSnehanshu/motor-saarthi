@@ -36,6 +36,7 @@ export default function VehicleInfo({
       ) : (
         <Box>
           <Heading>{vehicle?.name}</Heading>
+          <Text>{vehicle?.wheelCount} wheeler</Text>
           <Text>{vehicle?.registration_num}</Text>
 
           <Button.Group my="4">

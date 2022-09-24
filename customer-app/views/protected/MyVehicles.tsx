@@ -35,6 +35,7 @@ export default function MyVehicles({ navigation }: ScreenProps<'MyVehicles'>) {
                   <Text>
                     {format(new Date(vehicle.created_at), 'dd-LLL-yyyy')}
                   </Text>
+                  <Text>{vehicle.wheelCount} wheeler</Text>
                 </Box>
               </Row>
             </Pressable>

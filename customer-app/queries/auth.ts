@@ -8,14 +8,14 @@ import { AUTH_TOKEN, getAuthToken } from './getAuthToken';
 
 export async function setAuthToken(token: string) {
   await SecureStore.setItemAsync(AUTH_TOKEN, token);
-  await queryClient.invalidateQueries(['auth']);
+  await queryClient.invalidateQueries();
 }
 
 export function useRemoveAuthToken() {
   const logoutMutation = trpc.useMutation('auth.logout', {
     async onSuccess() {
       await SecureStore.deleteItemAsync(AUTH_TOKEN);
-      await queryClient.invalidateQueries(['auth']);
+      await queryClient.invalidateQueries();
     },
     onError(error) {
       console.error('Logout error', error);

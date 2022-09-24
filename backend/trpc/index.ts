@@ -17,6 +17,35 @@ type QRVerify = {
   isAvailable: boolean;
   reason: string;
 };
+async function checkQrAvailability(qrId: string) {
+  const qr = await prisma.qR.findUnique({
+    where: {
+      id: qrId,
+    },
+    select: {
+      vehicle_id: true,
+    },
+  });
+
+  if (!qr) {
+    return {
+      isAvailable: false,
+      reason: 'QR does not exists',
+    };
+  }
+
+  if (typeof qr.vehicle_id === 'string') {
+    return {
+      isAvailable: false,
+      reason: 'QR already linked to another vehicle',
+    };
+  }
+
+  return {
+    isAvailable: true,
+    reason: 'Ok',
+  };
+}
 
 function jwtVerify(token: string, secret: string, options: VerifyOptions) {
   return new Promise<JwtPayload>((resolve, reject) => {
@@ -175,34 +204,49 @@ export const appRouter = createRouter()
         input: z.object({
           qrId: z.string().cuid(),
         }),
-        async resolve({ input }): Promise<QRVerify> {
-          const qr = await prisma.qR.findUnique({
+        resolve({ input }) {
+          return checkQrAvailability(input.qrId);
+        },
+      })
+      .mutation('register-vehicle', {
+        input: z.object({
+          qrId: z.string().cuid(),
+          name: z.string(),
+          regNum: z.string(),
+          wheelCount: z.enum(['2', '3', '4']).default('2'),
+        }),
+        async resolve({ input, ctx }) {
+          // Validate QR
+          const availability = await checkQrAvailability(input.qrId);
+          if (!availability.isAvailable) {
+            throw new trpc.TRPCError({
+              code: 'CONFLICT',
+              message: availability.reason,
+            });
+          }
+
+          // Create vehicle
+          const vehicle = await prisma.vehicle.create({
+            data: {
+              name: input.name,
+              registration_num: input.regNum,
+              owner_cust_id: ctx.customerId!,
+              wheelCount: input.wheelCount,
+            },
+            select: { id: true },
+          });
+
+          // Assign QR to the vehicle
+          await prisma.qR.update({
             where: {
               id: input.qrId,
             },
-            select: {
-              vehicle_id: true,
+            data: {
+              vehicle_id: vehicle.id,
             },
           });
 
-          if (!qr) {
-            return {
-              isAvailable: false,
-              reason: 'QR does not exists',
-            };
-          }
-
-          if (typeof qr.vehicle_id === 'string') {
-            return {
-              isAvailable: false,
-              reason: 'QR already linked to another vehicle',
-            };
-          }
-
-          return {
-            isAvailable: true,
-            reason: 'Ok',
-          };
+          return vehicle;
         },
       }),
   )

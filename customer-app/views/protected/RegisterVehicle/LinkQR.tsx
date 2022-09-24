@@ -136,14 +136,10 @@ export default function LinkQR({
 
               <Button
                 my="8"
-                disabled={registerVehicleMutation.isLoading}
+                isLoading={registerVehicleMutation.isLoading}
                 onPress={handleFormSubmit}
               >
-                {registerVehicleMutation.isLoading ? (
-                  <Spinner />
-                ) : (
-                  <Text color="white">Register your vehicle</Text>
-                )}
+                Register your vehicle
               </Button>
             </>
           ) : (

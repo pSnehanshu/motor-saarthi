@@ -271,6 +271,42 @@ export const appRouter = createRouter()
 
           return { id: vehicleId };
         },
+      })
+      .mutation('unlink-vehicle', {
+        input: z.object({
+          vehicleId: z.string().cuid(),
+        }),
+        async resolve({ input, ctx }): Promise<void> {
+          // Fetch vehicle and QR
+          const vehicle = await prisma.vehicle.findFirst({
+            where: {
+              id: input.vehicleId,
+              owner_cust_id: ctx.customerId,
+            },
+            include: {
+              QR: true,
+            },
+          });
+
+          if (!vehicle) {
+            throw new trpc.TRPCError({
+              code: 'NOT_FOUND',
+              message: `Vehicle ${input.vehicleId} either doesn't exist or doesn't belong to you`,
+            });
+          }
+          if (!vehicle.QR) {
+            throw new trpc.TRPCError({
+              code: 'BAD_REQUEST',
+              message: `Vehicle ${input.vehicleId} isn't linked to any QR`,
+            });
+          }
+
+          // Unlink QR
+          await prisma.qR.update({
+            where: { id: vehicle.QR.id },
+            data: { vehicle_id: null },
+          });
+        },
       }),
   )
   .merge(

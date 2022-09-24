@@ -8,7 +8,6 @@ import {
   Modal,
   Button,
   Center,
-  Popover,
 } from 'native-base';
 import { useState } from 'react';
 import { ScreenProps } from '../../routes';
@@ -25,6 +24,18 @@ export default function VehicleInfo({
     isLoading,
     isError,
   } = trpc.useQuery(['customer.vehicle-info', { id }]);
+
+  const queryClient = trpc.useContext();
+  const unlinkVehicleMutation = trpc.useMutation('customer.unlink-vehicle', {
+    onSuccess() {
+      queryClient.invalidateQueries(['customer.vehicle-info', { id }]);
+    },
+    onError(error) {
+      console.error(error);
+      alert(`Failed to unlink: ${error.message}`);
+    },
+  });
+
   const [showQR, setShowQR] = useState(false);
   const [showUnlink, setShowUnlink] = useState(false);
 
@@ -116,7 +127,18 @@ export default function VehicleInfo({
                   >
                     Cancel
                   </Button>
-                  <Button colorScheme="danger">Unlink</Button>
+                  <Button
+                    colorScheme="danger"
+                    onPress={async () => {
+                      await unlinkVehicleMutation.mutateAsync({
+                        vehicleId: vehicle?.id!,
+                      });
+                      setShowUnlink(false);
+                    }}
+                    isLoading={unlinkVehicleMutation.isLoading}
+                  >
+                    Unlink
+                  </Button>
                 </Button.Group>
               </Modal.Footer>
             </Modal.Content>

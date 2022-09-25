@@ -89,7 +89,9 @@ export default function Auth({}: ScreenProps<'Auth'>) {
             my="4"
             isLoading={requestOtpMutation.isLoading}
             onPress={() => phone && requestOtpMutation.mutate({ phone })}
-            onLongPress={() => alert(`Hostname: ${hostname}`)}
+            onLongPress={() =>
+              alert(`Hostname: ${hostname}\nNODE_ENV: ${process.env.NODE_ENV}`)
+            }
           >
             Send OTP
           </Button>

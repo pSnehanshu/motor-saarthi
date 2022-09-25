@@ -43,9 +43,10 @@ export default function Home({ navigation }: ScreenProps<'Home'>) {
               key={j}
               width={`${100 / itemsPerRow}%`}
               height={200}
-              onPress={() => item.onPress && item.onPress()}
               borderWidth={4}
               borderColor="primary.800"
+              onPress={() => item.onPress && item.onPress()}
+              onLongPress={() => alert(`NODE_ENV: ${process.env.NODE_ENV}`)}
             >
               <Center height="100%" width="100%">
                 {item.title}

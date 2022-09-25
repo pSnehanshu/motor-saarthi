@@ -1,1 +1,3 @@
-export default 'http://192.168.29.42:4080';
+export default process.env.NODE_ENV === 'production'
+  ? 'https://motorsarthi.snehanshu.com'
+  : 'http://192.168.29.42:4080';

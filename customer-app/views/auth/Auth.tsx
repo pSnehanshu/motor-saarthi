@@ -11,6 +11,7 @@ import {
 import { ScreenProps } from '../../routes';
 import { setAuthToken } from '../../queries/auth';
 import { trpc } from '../../utils/trpc';
+import hostname from '../../utils/hostname';
 
 export default function Auth({}: ScreenProps<'Auth'>) {
   const [phone, setPhone] = useState('');
@@ -24,12 +25,20 @@ export default function Auth({}: ScreenProps<'Auth'>) {
     onSuccess() {
       setOtpSent(true);
     },
+    onError(error) {
+      console.error(error);
+      alert(error.message);
+    },
   });
   const submitOtpMutation = trpc.useMutation('auth.submit-otp', {
     onSuccess({ token, user }) {
       setOtpSent(false);
       setPhone('');
       setAuthToken(token);
+    },
+    onError(error) {
+      console.error(error);
+      alert(error.message);
     },
   });
 
@@ -80,6 +89,7 @@ export default function Auth({}: ScreenProps<'Auth'>) {
             my="4"
             isLoading={requestOtpMutation.isLoading}
             onPress={() => phone && requestOtpMutation.mutate({ phone })}
+            onLongPress={() => alert(`Hostname: ${hostname}`)}
           >
             Send OTP
           </Button>

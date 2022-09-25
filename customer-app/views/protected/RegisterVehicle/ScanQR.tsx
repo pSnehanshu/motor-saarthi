@@ -52,16 +52,16 @@ export default function ScanQR({
                   : ({ data }) => {
                       const timeout = pauseScanning();
 
-                      if (!data.startsWith(hostname)) {
-                        alert('Invalid QR code!');
-                        return;
-                      }
+                      // if (!data.startsWith(hostname)) {
+                      //   alert('Invalid QR code!');
+                      //   return;
+                      // }
 
                       const { pathname } = new URL(data);
-                      if (!pathname.startsWith('/qr/')) {
-                        alert('Invalid QR code!');
-                        return;
-                      }
+                      // if (!pathname.startsWith('/qr/')) {
+                      //   alert('Invalid QR code!');
+                      //   return;
+                      // }
 
                       const qrId = pathname.split('/qr/')[1];
                       if (!isCuid(qrId)) {

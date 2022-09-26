@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { Row, Pressable, Center, ScrollView, Button } from 'native-base';
 import { useRemoveAuthToken } from '../../queries/auth';
 import { ScreenProps } from '../../routes';
+import hostname from '../../utils/hostname';
 
 type MenuItem = {
   title: string;
@@ -46,7 +47,11 @@ export default function Home({ navigation }: ScreenProps<'Home'>) {
               borderWidth={4}
               borderColor="primary.800"
               onPress={() => item.onPress && item.onPress()}
-              onLongPress={() => alert(`NODE_ENV: ${process.env.NODE_ENV}`)}
+              onLongPress={() =>
+                alert(
+                  `Hostname: ${hostname}\nNODE_ENV: ${process.env.NODE_ENV}`,
+                )
+              }
             >
               <Center height="100%" width="100%">
                 {item.title}

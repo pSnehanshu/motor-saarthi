@@ -34,9 +34,8 @@ app.get('/print-qr/:qrId', async (req, res) => {
 
   const fullUrl = `${protocol}://${host}/qr/${encodeURIComponent(qr?.id)}`;
 
-  QRCode.toDataURL(fullUrl, (err, code) => {
-    res.render('qr/index', { qr, qrUrl: code });
-  });
+  const code = await QRCode.toDataURL(fullUrl);
+  res.render('qr/index', { qr, qrUrl: code });
 });
 
 app.use(cors());

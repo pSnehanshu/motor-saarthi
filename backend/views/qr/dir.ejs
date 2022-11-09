@@ -1,0 +1,41 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR directory</title>
+  </head>
+  <body>
+    <table border="1" style="width: 100%">
+      <thead>
+        <tr>
+          <th>QR</th>
+          <th>ID</th>
+          <th>Linked?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% qrs.forEach(qr => { %>
+        <tr>
+          <td style="text-align: center">
+            <img src="<%=qr.code%>" alt="<%=qr.qrId%>" />
+          </td>
+          <td>
+            <a href="<%=qr.url%>"><%=qr.qrId%></a>
+          </td>
+          <td><%=qr.isLinked ? 'Yes' : 'No' %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+
+    <div>
+      <a href="?page=<%=page-1%>&size=<%=size%>" style="float: left">
+        Prev page
+      </a>
+      <a href="?page=<%=page+1%>&size=<%=size%>" style="float: right">
+        Next page
+      </a>
+    </div>
+  </body>
+</html>

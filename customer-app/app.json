@@ -15,7 +15,9 @@
       "fallbackToCacheTimeout": 0,
       "url": "https://u.expo.dev/3c051fef-9852-4122-a57b-851d6eac6246"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.snehanshu.motorsaarthicustomerapp"
@@ -32,7 +34,15 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["@notifee/react-native", "@react-native-firebase/app"],
-    "runtimeVersion": "1.0.0"
+    "plugins": [
+      "@notifee/react-native",
+      "@react-native-firebase/app"
+    ],
+    "runtimeVersion": "1.0.0",
+    "extra": {
+      "eas": {
+        "projectId": "3c051fef-9852-4122-a57b-851d6eac6246"
+      }
+    }
   }
 }

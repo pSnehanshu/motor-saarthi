@@ -13,9 +13,10 @@ export function ValidateRequest(item: 'body' | 'query', schema: z.ZodSchema) {
       req[item] = parsed;
       next();
     } else {
-      console.error(result.error);
       RespondError(res, Errors.VALIDATION_FAILED, {
         errorSummary: 'Invalid input',
+        data: result.error,
+        statusCode: 400,
       });
     }
   };
